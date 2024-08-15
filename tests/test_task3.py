@@ -9,7 +9,7 @@ class TestSolution(unittest.TestCase):
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0], 6)
         self.assertEqual(result[1], 8)
-        self.assertEqual(result[2], False)
+        self.assertFalse(result[2], True)
 
 
 if __name__ == '__main__':

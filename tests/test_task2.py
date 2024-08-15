@@ -1,6 +1,5 @@
 import unittest
 import math
-import sys
 
 from Chapter_1.task2 import solution
 
