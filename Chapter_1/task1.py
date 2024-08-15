@@ -6,8 +6,12 @@
 """
 
 
+def solution() -> float:
+    return 9 ** 0.5 * 5
+
+
 def main():
-    print(9 ** 0.5 * 5)
+    print(solution())
 
 
 if __name__ == '__main__':

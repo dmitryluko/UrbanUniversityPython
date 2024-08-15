@@ -8,10 +8,15 @@
 """
 
 
-def main():
+def solution() -> tuple:
     eq1 = 2 * 2 + 2
     eq2 = 2 * (2 + 2)
-    print(eq1, eq2, eq1 == eq2, sep='\n')
+
+    return eq1, eq2, eq1 == eq2
+
+
+def main():
+    print(*solution(), sep='\n')
 
 
 if __name__ == '__main__':
