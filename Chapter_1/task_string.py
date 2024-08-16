@@ -43,7 +43,7 @@ def main():
     print(get_second_half('Urban'))
     print(get_every_second_symbol('Топинамбур'))
 
-    print(get_every_second_symbol("abcdefghijklmnopqrstuvwxyz"))
+    print(get_every_second_symbol('abcdefghijklmnopqrstuvwxyz'))
 
 
 if __name__ == '__main__':
