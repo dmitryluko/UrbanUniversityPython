@@ -68,20 +68,21 @@
 20 - 1+3 1+4 1+9 1+19 2+3 2+8 2+18 3+7 3+17 4+6 4+16 5+15 6+14 7+13 8+12 9+11
 
 """
-import random
-
-
-def roll_dice() -> int:
-    return random.randint(3, 20)
 
 
 def get_password(number: int) -> str:
-    pass
+    pairs = []
+
+    for i in range(1, number):
+        for j in range(i, number):
+            if number % (i + j) == 0:
+                pairs.append(f"{i}{j}")
+    return ''.join(pairs)
 
 
 def main():
-    for _ in range(3, 21):
-        print(get_password(_))
+    for n in range(3, 21):
+        print(f'{n=} : ', get_password(n))
 
 
 if __name__ == '__main__':
