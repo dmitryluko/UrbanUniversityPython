@@ -31,7 +31,7 @@ more. It is designed to equip students with the knowledge and skills needed to a
 To get started with the course materials, clone the repository and follow the setup instructions below.
 
 ```bash
-git clone https://github.com/YourUsername/UrbanUniversity.git
+git clone https://github.com/dmitryluko/UrbanUniversity.git
 cd UrbanUniversity
 ```
 
@@ -48,9 +48,9 @@ This course is licensed under the [MIT License](LICENSE).
 
 ## GitHub Statistics
 
-![GitHub Stars](https://img.shields.io/github/stars/YourUsername/UrbanUniversity?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/YourUsername/UrbanUniversity?style=social)
-![GitHub Issues](https://img.shields.io/github/issues/YourUsername/UrbanUniversity)
+![GitHub Stars](https://img.shields.io/github/stars/dmitryluko/UrbanUniversity?style=social)
+![GitHub Forks](https://img.shields.io/github/forks/dmitryluko/UrbanUniversity?style=social)
+![GitHub Issues](https://img.shields.io/github/issues/dmitryluko/UrbanUniversity)
 
 ## GitHub Workflows
 
@@ -58,12 +58,11 @@ This course is licensed under the [MIT License](LICENSE).
 
 We use GitHub Actions for continuous integration. Below is the status of our CI workflow.
 
-![CI](https://github.com/YourUsername/UrbanUniversity/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/dmitryluko/UrbanUniversity/actions/workflows/ci.yml/badge.svg)
 
 ### Code Quality
 
 We ensure code quality using linters and formatters. Below is the status of our code quality workflow.
 
-![Code Quality](https://github.com/YourUsername/UrbanUniversity/actions/workflows/code-quality.yml/badge.svg)
+![Code Quality](https://github.com/dmitryluko/UrbanUniversity/actions/workflows/code-quality.yml/badge.svg)
 
-### Just for test
