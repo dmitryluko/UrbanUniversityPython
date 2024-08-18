@@ -65,3 +65,4 @@ We use GitHub Actions for continuous integration. Below is the status of our CI 
 We ensure code quality using linters and formatters. Below is the status of our code quality workflow.
 
 ![Code Quality](https://github.com/YourUsername/UrbanUniversity/actions/workflows/code-quality.yml/badge.svg)
+
