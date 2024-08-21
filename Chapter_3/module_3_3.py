@@ -21,8 +21,19 @@ print_params(*values_list_2, 42)
 """
 
 
+def print_params(a: float = 1, b: str = 'строка', c: bool = True):
+    print(a, b, c)
+
+
 def main():
-    pass
+    values_list = [19, 'ListItem', False]
+    values_list_2 = [54.32, 'Строка']
+    values_dict = {'a': 20, 'b': 'DictItem', 'c': True}
+
+    print_params()
+    print_params(*values_list)
+    print_params(*values_list_2, 42)  # Works , but that's a bad idea at all
+    print_params(**values_dict)
 
 
 if __name__ == '__main__':
