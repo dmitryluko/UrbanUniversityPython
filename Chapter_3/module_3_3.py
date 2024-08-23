@@ -29,11 +29,13 @@ def main():
     values_list = [19, 'ListItem', False]
     values_list_2 = [54.32, 'Строка']
     values_dict = {'a': 20, 'b': 'DictItem', 'c': True}
-
     print_params()
     print_params(*values_list)
     print_params(*values_list_2, 42)  # Works , but that's a bad idea at all
     print_params(**values_dict)
+    print_params()
+    print_params(b=25)
+    print_params(c=[1, 2, 3])
 
 
 if __name__ == '__main__':
