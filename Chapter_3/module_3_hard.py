@@ -42,9 +42,19 @@ print(result)
 99
 
 """
+from typing import Callable, Any
 
 
 def calculate_structure_sum(data: object) -> int:
+    def safely_handle_data_(handler_: Callable[[Any], int], data_: Any) -> int:
+        if not callable(handler):
+            raise ValueError('Handler must be a callable function')
+        try:
+            return handler_(data_)
+        except Exception as e:
+            print(f'An error occurred: {e}')
+            raise
+
     def sum_int(i_data: int) -> int:
         return i_data
 
@@ -64,18 +74,18 @@ def calculate_structure_sum(data: object) -> int:
             sub_total += calculate_structure_sum(value)
         return sub_total
 
-    total_sum = 0
+    DATA_CORRESPONDING_HANDLER = {
+        int: sum_int,
+        str: sum_str,
+        list: sum_collection,
+        tuple: sum_collection,
+        set: sum_collection,
+        dict: sum_dict,
+        object: lambda _: 0,
+    }
 
-    if isinstance(data, int):
-        total_sum += sum_int(data)
-    elif isinstance(data, str):
-        total_sum += sum_str(data)
-    elif isinstance(data, (list, tuple, set)):
-        total_sum += sum_collection(data)
-    elif isinstance(data, dict):
-        total_sum += sum_dict(data)
-
-    return total_sum
+    handler = DATA_CORRESPONDING_HANDLER[type(data)]
+    return safely_handle_data_(handler, data)
 
 
 def main():
