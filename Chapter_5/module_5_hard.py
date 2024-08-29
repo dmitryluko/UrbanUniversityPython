@@ -29,29 +29,49 @@
 Если видео найдено, следует учесть, что пользователю может быть отказано в просмотре, т.к. есть ограничения 18+. Должно выводиться сообщение: "Вам нет 18 лет, пожалуйста покиньте страницу"
 После воспроизведения нужно выводить: "Конец видео"
 
+Вывод в консоль:
+['Лучший язык программирования 2024 года']
+['Лучший язык программирования 2024 года', 'Для чего девушкам парень программист?']
+Войдите в аккаунт, чтобы смотреть видео
+Вам нет 18 лет, пожалуйста покиньте страницу
+1 2 3 4 5 6 7 8 9 10 Конец видео
+Пользователь vasya_pupkin уже существует
+urban_pythonist
+
 """
 import hashlib
 import time
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 
+@dataclass
 class User:
-    def __init__(self, nickname: str, password: str, age: int):
-        self.nickname: str = nickname
-        self.password: int = self.hash_password(password)
-        self.age: int = age
+    nickname: str
+    password: str
+    age: int
+    __hashed_password: int = field(init=False)
+
+    def __post_init__(self):
+        self.__hashed_password = self.hash_password(self.password)
 
     @staticmethod
     def hash_password(password: str) -> int:
         return int(hashlib.sha256(password.encode()).hexdigest(), 16)
 
+    def check_password(self, password: str) -> bool:
+        return self.__hashed_password == self.hash_password(password)
 
+    def __str__(self):
+        return f'User {self.nickname}'
+
+
+@dataclass
 class Video:
-    def __init__(self, title: str, duration: int, adult_mode: bool = False):
-        self.title: str = title
-        self.duration: int = duration
-        self.time_now: int = 0
-        self.adult_mode: bool = adult_mode
+    title: str
+    duration: int
+    adult_mode: bool = False
+    time_now: int = 0
 
 
 class UrTube:
@@ -61,12 +81,12 @@ class UrTube:
         self.current_user: Optional[User] = None
 
     def log_in(self, nickname: str, password: str) -> None:
-        hashed_password: int = int(hashlib.sha256(password.encode()).hexdigest(), 16)
         for user in self.users:
-            if user.nickname == nickname and user.password == hashed_password:
+            if user.nickname == nickname and user.check_password(password):
                 self.current_user = user
                 return
         self.current_user = None
+        print("Invalid nickname or password")
 
     def register(self, nickname: str, password: str, age: int) -> None:
         if any(user.nickname == nickname for user in self.users):
@@ -75,8 +95,11 @@ class UrTube:
         new_user = User(nickname, password, age)
         self.users.append(new_user)
         self.current_user = new_user
+        print(f"User {nickname} registered and logged in")
 
     def log_out(self) -> None:
+        if self.current_user:
+            print(f"User {self.current_user.nickname} logged out")
         self.current_user = None
 
     def add(self, *videos: Video) -> None:
@@ -95,17 +118,18 @@ class UrTube:
 
         video: Optional[Video] = next((v for v in self.videos if v.title == title), None)
         if not video:
+            print("Video not found")
             return
 
         if video.adult_mode and self.current_user.age < 18:
-            print("You are under 18 years old, please leave this page")
+            print("You are under 18 years old. Access denied.")
             return
 
+        print(f"Starting '{video.title}'...")
         for second in range(1, video.duration + 1):
-            print(f"{second}", end=" ")
+            print(f"{second}", end=" ", flush=True)
             time.sleep(1)
-
-        print("End of video")
+        print("\nEnd of video")
         video.time_now = 0
 
 
@@ -136,5 +160,5 @@ def main():
     ur.watch_video('Лучший язык программирования 2024 года!')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
