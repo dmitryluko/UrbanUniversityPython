@@ -2,10 +2,10 @@
   <img src="https://img.icons8.com/external-tal-revivo-duo-tal-revivo/100/external-markdown-a-lightweight-markup-language-with-plain-text-formatting-syntax-logo-duo-tal-revivo.png" width="100" />
 </p>
 <p align="center">
-    <h1 align="center">URBANUNIVERSITYPYTHON</h1>
+    <h1 align="center">URBAN UNIVERSITY PYTHON</h1>
 </p>
 <p align="center">
-    <em>HTTP error 404 for prompt `slogan`</em>
+    <em>Always to be first!</em>
 </p>
 <p align="center">
 	<img src="https://img.shields.io/github/license/dmitryluko/UrbanUniversityPython?style=flat&color=0080ff" alt="license">
