@@ -10,11 +10,20 @@ __radd__(self, value), __iadd__(self, value) - работают так же ка
 Остальные методы арифметических операторов, где self - x, other - y:
 
 """
-from Chapter_5.module_5_1 import House
-from module_5_2 import SmartHouse
 
 
-class AdvancedHouse(SmartHouse):
+class House:
+
+    def __init__(self, name: str, number_of_floors: int):
+        self.name: str = name
+        self.number_of_floors: int = number_of_floors
+
+    def go_to(self, floor: int) -> None:
+        if 1 <= floor <= self.number_of_floors:
+            for i in range(1, floor + 1):
+                print(i)
+        else:
+            print('The Floor does not exist')
 
     @staticmethod
     def get_floors(value):
@@ -22,7 +31,7 @@ class AdvancedHouse(SmartHouse):
 
         if isinstance(value, int):
             return value
-        elif isinstance(value, AdvancedHouse):
+        elif isinstance(value, House):
             return value.number_of_floors
 
         raise TypeError("Value must be an int or an instance of AdvancedHouse")
@@ -32,7 +41,7 @@ class AdvancedHouse(SmartHouse):
 
         floors_to_add = self.get_floors(value)
 
-        return AdvancedHouse(self.name, self.number_of_floors + floors_to_add)
+        return House(self.name, self.number_of_floors + floors_to_add)
 
     def __radd__(self, value):
         """Supports addition from the right side."""
@@ -78,10 +87,16 @@ class AdvancedHouse(SmartHouse):
 
         return self.number_of_floors != self.get_floors(other)
 
+    def __len__(self):
+        return self.number_of_floors
+
+    def __str__(self):
+        return f'Name: {self.name}, Number of Floors: {self.number_of_floors}'
+
 
 def main():
-    h1 = AdvancedHouse('ЖК Эльбрус', 10)
-    h2 = AdvancedHouse('ЖК Акация', 20)
+    h1 = House('ЖК Эльбрус', 10)
+    h2 = House('ЖК Акация', 20)
 
     print(h1)
     print(h2)
