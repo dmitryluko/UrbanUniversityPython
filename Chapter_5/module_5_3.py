@@ -39,9 +39,9 @@ class House:
     def __add__(self, value):
         """Adds an integer number of floors or combines floors of another House."""
 
-        floors_to_add = self.get_floors(value)
+        self.number_of_floors += self.get_floors(value)
 
-        return House(self.name, self.number_of_floors + floors_to_add)
+        return self
 
     def __radd__(self, value):
         """Supports addition from the right side."""
@@ -51,11 +51,7 @@ class House:
     def __iadd__(self, value):
         """Supports in-place addition."""
 
-        new_house = self.__add__(value)
-
-        self.name = new_house.name
-        self.number_of_floors = new_house.number_of_floors
-        return self
+        return self.__add__(value)
 
     def __eq__(self, other):
         """Checks equality based on the number of floors."""
