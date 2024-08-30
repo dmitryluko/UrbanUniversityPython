@@ -8,7 +8,7 @@ def increment(x):
 
 def main():
     z = ctypes.c_int(5)
-    increment(ctypes.ctypes.byref(z))
+    increment(ctypes.byref(z))
     print(z)
 
 

@@ -34,6 +34,14 @@ PAIR_LIMIT = 20
 
 
 def is_valid_pair(number: int, first: int, second: int) -> bool:
+    """
+    This function checks if a pair of integers is a valid pair based on a given number.
+
+    :param number: The number against which the validity of the pair is checked.
+    :param first: The first integer in the pair.
+    :param second: The second integer in the pair.
+    :return: True if the pair is valid, False otherwise.
+    """
     if first == second or (first + second) == 0:
         return False
 
@@ -41,6 +49,12 @@ def is_valid_pair(number: int, first: int, second: int) -> bool:
 
 
 def generate_pairs(number: int) -> list[str]:
+    """
+    Generates pairs of numbers that are valid for the given number.
+
+    :param number: The input number for which pairs are generated.
+    :return: A list of strings representing the generated pairs.
+    """
     pairs = []
     for i in range(1, PAIR_LIMIT + 1):
         for j in range(i + 1, PAIR_LIMIT + 1):
@@ -50,6 +64,11 @@ def generate_pairs(number: int) -> list[str]:
 
 
 def get_password(number: int) -> int:
+    """Generates a password from a given number.
+
+    :param number: The number used to generate the password.
+    :return: The generated password.
+    """
     pairs = generate_pairs(number)
     return int(''.join(pairs))
 
