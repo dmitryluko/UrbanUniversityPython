@@ -10,10 +10,10 @@ __radd__(self, value), __iadd__(self, value) - работают так же ка
 Остальные методы арифметических операторов, где self - x, other - y:
 
 """
+from typing import Any
 
 
 class House:
-
     def __init__(self, name: str, number_of_floors: int):
         self.name: str = name
         self.number_of_floors: int = number_of_floors
@@ -26,67 +26,55 @@ class House:
             print('The Floor does not exist')
 
     @staticmethod
-    def get_floors(value):
-        """Helper method to get number of floors from value which can be int or AdvancedHouse."""
-
+    def get_floors(value: int | Any) -> int:
+        """Helper method to get number of floors from value which can be int or House."""
         if isinstance(value, int):
             return value
         elif isinstance(value, House):
             return value.number_of_floors
+        raise TypeError("Value must be an int or an instance of House")
 
-        raise TypeError("Value must be an int or an instance of AdvancedHouse")
-
-    def __add__(self, value):
+    def __add__(self, value: int | Any) -> 'House':
         """Adds an integer number of floors or combines floors of another House."""
-
         self.number_of_floors += self.get_floors(value)
-
         return self
 
-    def __radd__(self, value):
+    def __radd__(self, value: int | Any) -> 'House':
         """Supports addition from the right side."""
-
         return self.__add__(value)
 
-    def __iadd__(self, value):
+    def __iadd__(self, value: int | Any) -> 'House':
         """Supports in-place addition."""
-
         return self.__add__(value)
 
-    def __eq__(self, other):
+    def __eq__(self, other: int | Any) -> bool:
         """Checks equality based on the number of floors."""
-
         return self.number_of_floors == self.get_floors(other)
 
-    def __gt__(self, other):
+    def __gt__(self, other: int | Any) -> bool:
         """Greater than comparison based on the number of floors."""
-
         return self.number_of_floors > self.get_floors(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other: int | Any) -> bool:
         """Greater than or equal comparison based on the number of floors."""
-
         return self.number_of_floors >= self.get_floors(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: int | Any) -> bool:
         """Less than comparison based on the number of floors."""
-
         return self.number_of_floors < self.get_floors(other)
 
-    def __le__(self, other):
+    def __le__(self, other: int | Any) -> bool:
         """Less than or equal comparison based on the number of floors."""
-
         return self.number_of_floors <= self.get_floors(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: int | Any) -> bool:
         """Not equal comparison based on the number of floors."""
-
         return self.number_of_floors != self.get_floors(other)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.number_of_floors
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Name: {self.name}, Number of Floors: {self.number_of_floors}'
 
 
