@@ -35,18 +35,49 @@ from abc import ABC, abstractmethod
 
 
 class Plant:
+    """
+    Initializes a new instance of the Plant class.
+
+    :param name: The name of the plant.
+    :param edible: A bool value indicating whether the plant is edible or not. Default is False.
+    """
+
     def __init__(self, name: str, edible: bool = False):
         self.name = name
         self.edible = edible
 
 
 class EatMixin:
+    """
+
+    This module contains the `EatMixin` class.
+
+    `EatMixin` is a mixin class that provides properties and methods related to eating behavior. It has the following attributes:
+
+    - `fed`: A boolean value indicating if the object is currently fed.
+    - `alive`: A boolean value indicating if the object is alive.
+    - `name`: A string representing the name of the object.
+
+    """
     fed: bool
     alive: bool
     name: str
 
 
 def eat(self, food: Plant) -> None:
+    """
+    This method `eat` is defined within a class and is responsible for eating food.
+
+    :param self: The instance of the class that this method belongs to.
+    :param food: The food object that the instance is attempting to eat.
+
+    :return: None
+
+    Raises:
+        AttributeError: If the instance does not have `fed` and `alive` attributes.
+
+    This method checks if the instance has the required `fed` and `alive` attributes. If not, it raises an `AttributeError`.
+    """
     if not hasattr(self, 'fed') or not hasattr(self, 'alive'):
         raise AttributeError('EatMixin requires fed and alive attributes')
 
@@ -59,6 +90,13 @@ def eat(self, food: Plant) -> None:
 
 
 class Animal(ABC):
+    """
+    Initializes an instance of the Animal class.
+
+    :param name: The name of the animal.
+    :type name: str
+    """
+
     def __init__(self, name: str):
         self.name: str = name
         self.alive: bool = True
@@ -70,11 +108,23 @@ class Animal(ABC):
 
 
 class Mammal(EatMixin, Animal):
+    """
+    This code defines a class called Mammal, which is a subclass of the EatMixin and Animal classes.
+    """
+
     def eat(self, food: Plant) -> None:
         super().eat(food)
 
 
 class Predator(EatMixin, Animal):
+    """
+    Parameters:
+    - `food` (Plant): The plant object that the predator wants to eat.
+
+    Returns:
+    - None: This method does not return any value.
+    """
+
     def eat(self, food: Plant) -> None:
         super().eat(food)
 
@@ -84,6 +134,12 @@ class Flower(Plant):
 
 
 class Fruit(Plant):
+    """
+    The code defines a class called `Fruit` that inherits from the `Plant` class.
+    The `Fruit` class has an `__init__` method which initializes an instance of the class with a `name` parameter of type `str`. The `__init__` method also calls the `__init__` method of the parent `Plant` class by passing the `name` parameter and an `edible` parameter set to `True`.
+
+    """
+
     def __init__(self, name: str):
         super().__init__(name, edible=True)
 
