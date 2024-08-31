@@ -32,32 +32,6 @@ II. Класс Sedan наследуется от класса Vehicle, а так
 Не забудьте сделать Sedan наследником класса Vehicle.
 Создайте объект класса Sedan и проверьте, как работают все его методы, взяты из класса Vehicle.
 
-Пример результата выполнения программы:
-Исходный код:
-# Текущие цвета __COLOR_VARIANTS = ['blue', 'red', 'green', 'black', 'white']
-vehicle1 = Sedan('Fedos', 'Toyota Mark II', 'blue', 500)
-
-# Изначальные свойства
-vehicle1.print_info()
-
-# Меняем свойства (в т.ч. вызывая методы)
-vehicle1.set_color('Pink')
-vehicle1.set_color('BLACK')
-vehicle1.owner = 'Vasyok'
-
-# Проверяем что поменялось
-vehicle1.print_info()
-
-Вывод на консоль:
-Модель: Toyota Mark II
-Мощность двигателя: 500
-Цвет: blue
-Владелец: Fedos
-Нельзя сменить цвет на Pink
-Модель: Toyota Mark II
-Мощность двигателя: 500
-Цвет: BLACK
-Владелец: Vasyok
 
 """
 from enum import Enum
@@ -74,38 +48,85 @@ class ColorPalette(Enum):
     TURQUOISE = 'turquoise'
 
 
+# class Vehicle:
+#     __COLOR_VARIANTS = [color.value for color in ColorPalette]
+#
+#     def __init__(self, owner: str, model: str, color: str, engine_power: int):
+#         self.owner = owner
+#         self.__model = model
+#         self.__engine_power = engine_power
+#         if color.lower() in Vehicle.__COLOR_VARIANTS:
+#             self.__color = color.lower()
+#         else:
+#             raise ValueError(f'Invalid color: {color}')
+#
+#     def get_model(self) -> str:
+#         return f"Модель: {self.__model}"
+#
+#     def get_horsepower(self) -> str:
+#         return f"Мощность двигателя: {self.__engine_power}"
+#
+#     def get_color(self) -> str:
+#         return f"Цвет: {self.__color}"
+#
+#     def set_color(self, new_color: str) -> None:
+#         if new_color.lower() in Vehicle.__COLOR_VARIANTS:
+#             self.__color = new_color.lower()
+#         else:
+#             print(f"Нельзя сменить цвет на {new_color}")
+#
+#     def print_info(self) -> None:
+#         print(self.get_model())
+#         print(self.get_horsepower())
+#         print(self.get_color())
+#         print(f"Владелец: {self.owner}")
+"""
+Got it, I see what you're trying to do, but I've got a better solution. Check it out below!
+"""
+
+
 class Vehicle:
-    __COLOR_VARIANTS = [color.value for color in ColorPalette]
+    @classmethod
+    def get_color_variants(cls):
+        return [color.value for color in ColorPalette]
 
     def __init__(self, owner: str, model: str, color: str, engine_power: int):
         self.owner = owner
-        self.__model = model
-        self.__engine_power = engine_power
-        if color.lower() in Vehicle.__COLOR_VARIANTS:
-            self.__color = color.lower()
-        else:
-            raise ValueError(f'Invalid color: {color}')
+        self._model = model
+        self._engine_power = engine_power
+        self._color = self._validate_color(color)
 
-    def get_model(self) -> str:
-        return f"Модель: {self.__model}"
+    @staticmethod
+    def _validate_color(color: str) -> str:
+        color_lower = color.lower()
+        if color_lower in Vehicle.get_color_variants():
+            return color_lower
+        raise ValueError(f'Invalid color: {color}')
 
-    def get_horsepower(self) -> str:
-        return f"Мощность двигателя: {self.__engine_power}"
+    @property
+    def model(self) -> str:
+        return f"Model: {self._model}"
 
-    def get_color(self) -> str:
-        return f"Цвет: {self.__color}"
+    @property
+    def horsepower(self) -> str:
+        return f"Engine Power: {self._engine_power}"
 
-    def set_color(self, new_color: str) -> None:
-        if new_color.lower() in Vehicle.__COLOR_VARIANTS:
-            self.__color = new_color.lower()
-        else:
-            print(f"Нельзя сменить цвет на {new_color}")
+    @property
+    def color(self) -> str:
+        return f"Color: {self._color}"
+
+    @color.setter
+    def color(self, new_color: str) -> None:
+        try:
+            self._color = self._validate_color(new_color)
+        except ValueError:
+            print(f"Cannot change color to {new_color}")
 
     def print_info(self) -> None:
-        print(self.get_model())
-        print(self.get_horsepower())
-        print(self.get_color())
-        print(f"Владелец: {self.owner}")
+        print(self.model)
+        print(self.horsepower)
+        print(self.color)
+        print(f"Owner: {self.owner}")
 
 
 class Sedan(Vehicle):
@@ -124,9 +145,9 @@ def main():
     vehicle1 = Sedan('Fedos', 'Toyota Mark II', 'blue', 500)
     vehicle1.print_info()
     # Trying to change color to an invalid color "Pink"
-    vehicle1.set_color('Pink')
+    vehicle1.color = 'Pink'
     # Trying to change color to BLACK
-    vehicle1.set_color('BLACK')
+    vehicle1.color = 'BLACK'
     vehicle1.owner = 'Vasyok'
     vehicle1.print_info()
 
