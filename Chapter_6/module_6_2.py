@@ -60,23 +60,76 @@ vehicle1.print_info()
 Владелец: Vasyok
 
 """
+from enum import Enum
+
+
+class ColorPalette(Enum):
+    BLUE = 'blue'
+    RED = 'red'
+    GREEN = 'green'
+    BLACK = 'black'
+    WHITE = 'white'
+    PURPLE = 'purple'
+    ORANGE = 'orange'
+    TURQUOISE = 'turquoise'
+
+
+class Vehicle:
+    __COLOR_VARIANTS = [color.value for color in ColorPalette]
+
+    def __init__(self, owner: str, model: str, color: str, engine_power: int):
+        self.owner = owner
+        self.__model = model
+        self.__engine_power = engine_power
+        if color.lower() in Vehicle.__COLOR_VARIANTS:
+            self.__color = color.lower()
+        else:
+            raise ValueError(f'Invalid color: {color}')
+
+    def get_model(self) -> str:
+        return f"Модель: {self.__model}"
+
+    def get_horsepower(self) -> str:
+        return f"Мощность двигателя: {self.__engine_power}"
+
+    def get_color(self) -> str:
+        return f"Цвет: {self.__color}"
+
+    def set_color(self, new_color: str) -> None:
+        if new_color.lower() in Vehicle.__COLOR_VARIANTS:
+            self.__color = new_color.lower()
+        else:
+            print(f"Нельзя сменить цвет на {new_color}")
+
+    def print_info(self) -> None:
+        print(self.get_model())
+        print(self.get_horsepower())
+        print(self.get_color())
+        print(f"Владелец: {self.owner}")
+
+
+class Sedan(Vehicle):
+    __PASSENGERS_LIMIT = 5
+
+    def __init__(self, owner: str, model: str, color: str, engine_power: int):
+        super().__init__(owner, model, color, engine_power)
+
+    @property
+    def passengers_limit(self):
+        return Sedan.__PASSENGERS_LIMIT
 
 
 def main():
-    # Текущие цвета __COLOR_VARIANTS = ['blue', 'red', 'green', 'black', 'white']
+    # Creating an instance of Sedan with STANDARD color palette
     vehicle1 = Sedan('Fedos', 'Toyota Mark II', 'blue', 500)
-
-    # Изначальные свойства
     vehicle1.print_info()
-
-    # Меняем свойства (в т.ч. вызывая методы)
+    # Trying to change color to an invalid color "Pink"
     vehicle1.set_color('Pink')
+    # Trying to change color to BLACK
     vehicle1.set_color('BLACK')
     vehicle1.owner = 'Vasyok'
-
-    # Проверяем что поменялось
     vehicle1.print_info()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
