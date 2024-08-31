@@ -31,6 +31,7 @@ eat(self, food) - метод, где food - это параметр, прини�
 Создайте объекты этих классов.
 
 """
+from abc import ABC, abstractmethod
 
 
 class Plant:
@@ -39,28 +40,43 @@ class Plant:
         self.edible = edible
 
 
-class Animal:
+class EatMixin:
+    fed: bool
+    alive: bool
+    name: str
+
+
+def eat(self, food: Plant) -> None:
+    if not hasattr(self, 'fed') or not hasattr(self, 'alive'):
+        raise AttributeError('EatMixin requires fed and alive attributes')
+
+    if food.edible:
+        print(f'{self.name} съел {food.name}')
+        self.fed = True
+    else:
+        print(f'{self.name} не стал есть {food.name}')
+        self.alive = False
+
+
+class Animal(ABC):
     def __init__(self, name: str):
         self.name: str = name
         self.alive: bool = True
         self.fed: bool = False
 
-    def eat(self, food: Plant):
-
-        if food.edible:
-            print(f'{self.name} eat {food.name}')
-            self.fed = True
-        else:
-            print(f'{self.name} not eat {food.name}')
-            self.alive = False
+    @abstractmethod
+    def eat(self, food: Plant) -> None:
+        pass
 
 
-class Mammal(Animal):
-    pass
+class Mammal(EatMixin, Animal):
+    def eat(self, food: Plant) -> None:
+        super().eat(food)
 
 
-class Predator(Animal):
-    pass
+class Predator(EatMixin, Animal):
+    def eat(self, food: Plant) -> None:
+        super().eat(food)
 
 
 class Flower(Plant):
@@ -68,7 +84,7 @@ class Flower(Plant):
 
 
 class Fruit(Plant):
-    def __init__(self, name):
+    def __init__(self, name: str):
         super().__init__(name, edible=True)
 
 
