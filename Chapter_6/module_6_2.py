@@ -105,28 +105,28 @@ class Vehicle:
 
     @property
     def model(self) -> str:
-        return f"Model: {self._model}"
+        return f'Model: {self._model}'
 
     @property
     def horsepower(self) -> str:
-        return f"Engine Power: {self._engine_power}"
+        return f'Engine Power: {self._engine_power}'
 
     @property
     def color(self) -> str:
-        return f"Color: {self._color}"
+        return f'Color: {self._color}'
 
     @color.setter
     def color(self, new_color: str) -> None:
         try:
             self._color = self._validate_color(new_color)
         except ValueError:
-            print(f"Cannot change color to {new_color}")
+            print(f'Cannot change color to {new_color}')
 
     def print_info(self) -> None:
         print(self.model)
         print(self.horsepower)
         print(self.color)
-        print(f"Owner: {self.owner}")
+        print(f'Owner: {self.owner}')
 
 
 class Sedan(Vehicle):
