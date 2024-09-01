@@ -1,8 +1,11 @@
 import arcade
 
+from Chapter_6.pong_game.design.colors import BG_COLOR
+
 
 class Game(arcade.Window):
-    pass
+    def on_draw(self):
+        self.clear(BG_COLOR)
 
 
 def main():
