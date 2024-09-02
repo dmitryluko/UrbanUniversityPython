@@ -2,7 +2,7 @@ import arcade
 
 from Chapter_6.pong_game.assets.sprites.rocket_sprite import RocketSprite
 from Chapter_6.pong_game.design.colors import BG_COLOR
-from Chapter_6.pong_game.design.dimensions import SCREEN_WIDTH_1200, SCREEN_HEIGHT_800
+from Chapter_6.pong_game.design.dimensions import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Game(arcade.Window):
@@ -12,6 +12,12 @@ class Game(arcade.Window):
         super().__init__(width, height, title)
         self.rocket = RocketSprite()
 
+        self.setup()
+
+    def setup(self):
+        self.rocket.center_x = SCREEN_WIDTH / 2
+        self.rocket.center_y = SCREEN_HEIGHT / 5
+
     def on_draw(self):
         self.clear(BG_COLOR)
         self.rocket.draw()
@@ -19,8 +25,8 @@ class Game(arcade.Window):
 
 def main():
     game_window = Game(
-        width=SCREEN_WIDTH_1200,
-        height=SCREEN_HEIGHT_800,
+        width=SCREEN_WIDTH,
+        height=SCREEN_HEIGHT,
         title=Game.SCREEN_TITLE
     )
 
