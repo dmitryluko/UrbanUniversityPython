@@ -39,12 +39,11 @@ class Plant:
     Initializes a new instance of the Plant class.
 
     :param name: The name of the plant.
-    :param edible: A bool value indicating whether the plant is edible or not. Default is False.
     """
+    edible: bool = False
 
-    def __init__(self, name: str, edible: bool = False):
+    def __init__(self, name: str):
         self.name = name
-        self.edible = edible
 
 
 class EatMixin:
@@ -63,30 +62,29 @@ class EatMixin:
     alive: bool
     name: str
 
+    def eat(self, food: Plant) -> None:
+        """
+        This method `eat` is defined within a class and is responsible for eating food.
 
-def eat(self, food: Plant) -> None:
-    """
-    This method `eat` is defined within a class and is responsible for eating food.
+        :param self: The instance of the class that this method belongs to.
+        :param food: The food object that the instance is attempting to eat.
 
-    :param self: The instance of the class that this method belongs to.
-    :param food: The food object that the instance is attempting to eat.
+        :return: None
 
-    :return: None
+        Raises:
+            AttributeError: If the instance does not have `fed` and `alive` attributes.
 
-    Raises:
-        AttributeError: If the instance does not have `fed` and `alive` attributes.
+        This method checks if the instance has the required `fed` and `alive` attributes. If not, it raises an `AttributeError`.
+        """
+        if not hasattr(self, 'fed') or not hasattr(self, 'alive'):
+            raise AttributeError('EatMixin requires fed and alive attributes')
 
-    This method checks if the instance has the required `fed` and `alive` attributes. If not, it raises an `AttributeError`.
-    """
-    if not hasattr(self, 'fed') or not hasattr(self, 'alive'):
-        raise AttributeError('EatMixin requires fed and alive attributes')
-
-    if food.edible:
-        print(f'{self.name} съел {food.name}')
-        self.fed = True
-    else:
-        print(f'{self.name} не стал есть {food.name}')
-        self.alive = False
+        if food.edible:
+            print(f'{self.name} съел {food.name}')
+            self.fed = True
+        else:
+            print(f'{self.name} не стал есть {food.name}')
+            self.alive = False
 
 
 class Animal(ABC):
@@ -96,11 +94,11 @@ class Animal(ABC):
     :param name: The name of the animal.
     :type name: str
     """
+    fed: bool = False
+    alive: bool = True
 
     def __init__(self, name: str):
         self.name: str = name
-        self.alive: bool = True
-        self.fed: bool = False
 
     @abstractmethod
     def eat(self, food: Plant) -> None:
@@ -130,7 +128,8 @@ class Predator(EatMixin, Animal):
 
 
 class Flower(Plant):
-    pass
+    def __init__(self, name: str):
+        super().__init__(name)
 
 
 class Fruit(Plant):
@@ -141,7 +140,8 @@ class Fruit(Plant):
     """
 
     def __init__(self, name: str):
-        super().__init__(name, edible=True)
+        super().__init__(name)
+        self.edible: bool = True
 
 
 def main():
