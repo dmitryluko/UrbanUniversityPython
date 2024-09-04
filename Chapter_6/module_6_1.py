@@ -135,7 +135,7 @@ class Flower(Plant):
 class Fruit(Plant):
     """
     The code defines a class called `Fruit` that inherits from the `Plant` class.
-    The `Fruit` class has an `__init__` method which initializes an instance of the class with a `name` parameter of type `str`. The `__init__` method also calls the `__init__` method of the parent `Plant` class by passing the `name` parameter and an `edible` parameter set to `True`.
+    The `Fruit` class has an `__init__` method which initializes an instance of the class with a `name` parameter of type `str`. The `__init__` method also calls the `__init__` method of the parent `Plant` class by passing the `name` parameter
 
     """
 
