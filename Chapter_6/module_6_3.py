@@ -76,11 +76,9 @@ def main():
     print(p1.get_pos())
 
     p1.voice()
+    print(Pegasus.__mro__)
 
 
 if __name__ == '__main__':
     main()
 
-"""
- -> Но! Я бы написал по другому. Здесь явная нехватка абстракции Animal
-  """
