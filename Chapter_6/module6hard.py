@@ -85,7 +85,7 @@ class Color:
             self.__g = g
             self.__b = b
         else:
-            raise ValueError("Invalid color values")
+            raise ValueError(f'Invalid color values: {values = }')
 
     @staticmethod
     def _is_valid_color(r, g, b) -> bool:
@@ -196,7 +196,7 @@ def main():
     # Проверка на изменение сторон:
     cube1.sides = (5, 3, 12, 4, 5)  # Не изменится
     print(cube1.sides)
-    circle1.sides = (15)  # Изменится
+    circle1.sides = 15  # Изменится
     print(circle1.sides)
 
     # Проверка периметра (круга), это и есть длина:
