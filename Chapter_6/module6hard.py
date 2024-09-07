@@ -62,6 +62,7 @@
 216
 
 """
+from math import pi, sqrt
 
 
 class Color:
@@ -69,6 +70,8 @@ class Color:
         self.__r = r
         self.__g = g
         self.__b = b
+
+        super().__init__()
 
     @property
     def rgb_color(self):
@@ -93,10 +96,17 @@ class Figure:
     SIDES_COUNT = 0
     DEFAULT_COLOR = Color(255, 0, 0)
 
-    def __init__(self):
-        self.__sides = []
+    def __init__(self, sides=None):
+
+        if sides is not None:
+            self.__sides = []
+        else:
+            self.__sides = sides
+
         self.__color: Color = self.DEFAULT_COLOR
         self.filled = False
+
+        super().__init__()
 
     @property
     def color(self):
@@ -106,28 +116,94 @@ class Figure:
     def color(self, values):
         self.__color.rgb_color = values
 
+    @property
+    def sides(self):
+        return self.__sides
+
+    @sides.setter
+    def sides(self, new_sides):
+        if self._is_valid_sides(new_sides):
+            self.__sides = new_sides
+        else:
+            raise ValueError("Invalid sides")
+
+    def _is_valid_sides(self, new_sides):
+        return len(new_sides) == self.SIDES_COUNT
+
+    def __len__(self):
+        return sum(self.__sides)
+
+    def _get_square(self):
+        return NotImplemented
+
+    @property
+    def square(self):
+        return self._get_square()
+
+
+class Circle(Figure):
+    def __init__(self, color, length):
+        self.SIDES_COUNT = 1
+        super().__init__(length)
+        self.color = color
+        self._radius = length / (2 * pi)
+        self._square = self._get_square()
+
+    @property
+    def square(self):
+        return self._square
+
+    def radius(self):
+        return self._radius
+
+
+class Triangle(Figure):
+    def __init__(self, color, *sides):
+        super().__init__(sides)
+
+    def _get_square(self):
+        a, b, c = self.sides
+
+        semi_perimeter = (a + b + c) / 2
+        herons_square = sqrt(semi_perimeter * (semi_perimeter - a) * (semi_perimeter - b) * (semi_perimeter - c))
+
+        return herons_square
+
+
+class Cube(Figure):
+    def __init__(self, color, *sides):
+        self.SIDES_COUNT = 12
+        super().__init__(sides)
+
+    def _get_square(self):
+        return 6 * pow(self.sides[0], 2)
+
+    @property
+    def volume(self):
+        return pow(self.sides[0], 3)
+
 
 def main():
     circle1 = Circle((200, 200, 100), 10)  # (Цвет, стороны)
     cube1 = Cube((222, 35, 130), 6)
 
     # Проверка на изменение цветов:
-    circle1.set_color(55, 66, 77)  # Изменится
-    print(circle1.get_color())
-    cube1.set_color(300, 70, 15)  # Не изменится
-    print(cube1.get_color())
+    circle1.color = (55, 66, 77)  # Изменится
+    print(circle1.color)
+    cube1.color = (300, 70, 15)  # Не изменится
+    print(cube1.color)
 
     # Проверка на изменение сторон:
-    cube1.set_sides(5, 3, 12, 4, 5)  # Не изменится
-    print(cube1.get_sides())
-    circle1.set_sides(15)  # Изменится
-    print(circle1.get_sides())
+    cube1.sides = (5, 3, 12, 4, 5)  # Не изменится
+    print(cube1.sides)
+    circle1.sides = (15)  # Изменится
+    print(circle1.sides)
 
     # Проверка периметра (круга), это и есть длина:
     print(len(circle1))
 
     # Проверка объёма (куба):
-    print(cube1.get_volume())
+    print(cube1.volume)
 
 
 if __name__ == '__main__':
