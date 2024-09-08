@@ -88,7 +88,6 @@ class Color:
         if isinstance(values, tuple) and len(values) == 3 and all(isinstance(val, int) for val in values):
             if self._is_valid_color(*values):
                 self.__r, self.__g, self.__b = values
-                return
 
     @staticmethod
     def _is_valid_color(r, g, b) -> bool:
