@@ -60,18 +60,24 @@
 [15]
 15
 216
-
 """
-from math import pi, sqrt
+
+import math
+
+# Error Messages
+INVALID_COLOR_MSG = "Color values must be integers between 0 and 255."
+INVALID_SIDES_MSG = "Invalid sides for the figure."
+INVALID_TRIANGLE_SIDES_MSG = "A triangle must have exactly 3 sides"
 
 
 class Color:
     def __init__(self, r: int, g: int, b: int):
-        self.__r = r
-        self.__g = g
-        self.__b = b
-
-        super().__init__()
+        if self._is_valid_color(r, g, b):
+            self.__r = r
+            self.__g = g
+            self.__b = b
+        else:
+            raise ValueError(INVALID_COLOR_MSG)
 
     @property
     def rgb_color(self):
@@ -79,13 +85,10 @@ class Color:
 
     @rgb_color.setter
     def rgb_color(self, values):
-        r, g, b = values
-        if self._is_valid_color(r, g, b):
-            self.__r = r
-            self.__g = g
-            self.__b = b
-        else:
-            raise ValueError(f'Invalid color values: {values = }')
+        if isinstance(values, tuple) and len(values) == 3 and all(isinstance(val, int) for val in values):
+            if self._is_valid_color(*values):
+                self.__r, self.__g, self.__b = values
+                return
 
     @staticmethod
     def _is_valid_color(r, g, b) -> bool:
@@ -96,17 +99,10 @@ class Figure:
     SIDES_COUNT = 0
     DEFAULT_COLOR = Color(255, 0, 0)
 
-    def __init__(self, sides=None):
-
-        if sides is not None:
-            self.__sides = []
-        else:
-            self.__sides = sides
-
-        self.__color: Color = self.DEFAULT_COLOR
+    def __init__(self, sides=None, color=None):
+        self.__sides = sides if sides is not None and self._is_valid_sides(sides) else [1] * self.SIDES_COUNT
+        self.__color = Color(*color) if color is not None else self.DEFAULT_COLOR
         self.filled = False
-
-        super().__init__()
 
     @property
     def color(self):
@@ -122,13 +118,11 @@ class Figure:
 
     @sides.setter
     def sides(self, new_sides):
-        if self._is_valid_sides(new_sides):
-            self.__sides = new_sides
-        else:
-            raise ValueError("Invalid sides")
+        self.__sides = new_sides if self._is_valid_sides(new_sides) else [1] * self.SIDES_COUNT
 
     def _is_valid_sides(self, new_sides):
-        return len(new_sides) == self.SIDES_COUNT
+        return isinstance(new_sides, list) and len(new_sides) == self.SIDES_COUNT and all(
+            isinstance(side, (int, float)) and side > 0 for side in new_sides)
 
     def __len__(self):
         return sum(self.__sides)
@@ -142,68 +136,108 @@ class Figure:
 
 
 class Circle(Figure):
-    def __init__(self, color, length):
-        self.SIDES_COUNT = 1
-        super().__init__(length)
-        self.color = color
-        self._radius = length / (2 * pi)
+    SIDES_COUNT = 1
+
+    def __init__(self, color, radius):
+        super().__init__(color=color, sides=[radius * 2 * math.pi])
+        self._radius = radius
         self._square = self._get_square()
 
     @property
     def square(self):
         return self._square
 
+    @property
     def radius(self):
         return self._radius
 
+    def _get_square(self):
+        return math.pi * self._radius ** 2
+
 
 class Triangle(Figure):
-    def __init__(self, color, *sides):
-        super().__init__(sides)
+    SIDES_COUNT = 3
+
+    def __init__(self, color, side1, side2, side3):
+        sides = [side1, side2, side3]
+        if not self._is_triangle_sides(sides):
+            raise ValueError(INVALID_TRIANGLE_SIDES_MSG)
+        super().__init__(color=color, sides=sides)
+
+    def _is_triangle_sides(self, sides):
+        if isinstance(sides, (list, tuple)) and len(sides) == self.SIDES_COUNT:
+            a, b, c = sides
+            return a + b > c and a + c > b and b + c > a
+        return False
 
     def _get_square(self):
         a, b, c = self.sides
+        s = (a + b + c) / 2
 
-        semi_perimeter = (a + b + c) / 2
-        herons_square = sqrt(semi_perimeter * (semi_perimeter - a) * (semi_perimeter - b) * (semi_perimeter - c))
-
-        return herons_square
+        return math.sqrt(s * (s - a) * (s - b) * (s - c))
 
 
 class Cube(Figure):
-    def __init__(self, color, *sides):
-        self.SIDES_COUNT = 12
-        super().__init__(sides)
+    SIDES_COUNT = 1
+
+    def __init__(self, color, side_length):
+        if not isinstance(side_length, (int, float)) or side_length <= 0:
+            raise ValueError(INVALID_SIDES_MSG)
+        super().__init__(color=color, sides=[side_length])
 
     def _get_square(self):
-        return 6 * pow(self.sides[0], 2)
+        side_length = self.sides[0]
+        return 6 * pow(side_length, 2)
 
     @property
     def volume(self):
-        return pow(self.sides[0], 3)
+        side_length = self.sides[0]
+        return pow(side_length, 3)
 
 
 def main():
-    circle1 = Circle((200, 200, 100), 10)  # (Цвет, стороны)
-    cube1 = Cube((222, 35, 130), 6)
+    # Create instances of the shapes
+    circle1 = Circle((200, 200, 100), 10)  # (Color, radius)
+    triangle1 = Triangle((255, 0, 0), 3, 4, 5)  # (Color, side1, side2, side3)
+    cube1 = Cube((222, 35, 130), 6)  # (Color, side_length)
 
-    # Проверка на изменение цветов:
-    circle1.color = (55, 66, 77)  # Изменится
-    print(circle1.color)
-    cube1.color = (300, 70, 15)  # Не изменится
-    print(cube1.color)
+    # Print the initial colors
+    print("Initial Colors:")
+    print(f"Circle: {circle1.color}")
+    print(f"Triangle: {triangle1.color}")
+    print(f"Cube: {cube1.color}")
 
-    # Проверка на изменение сторон:
-    cube1.sides = (5, 3, 12, 4, 5)  # Не изменится
-    print(cube1.sides)
-    circle1.sides = 15  # Изменится
-    print(circle1.sides)
+    # Change colors
+    circle1.color = (55, 66, 77)
+    cube1.color = (300, 70, 15)  # Invalid, should not change
 
-    # Проверка периметра (круга), это и есть длина:
-    print(len(circle1))
+    # Print the colors after attempting to change
+    print("\nColors After Change Attempt:")
+    print(f"Circle: {circle1.color}")
+    print(f"Cube: {cube1.color}")
 
-    # Проверка объёма (куба):
-    print(cube1.volume)
+    # Print the sides
+    print("\nSides:")
+    print(f"Circle (perimeter): {circle1.sides}")
+    print(f"Triangle sides: {triangle1.sides}")
+    print(f"Cube (side length): {cube1.sides}")
+
+    # Change sides
+    cube1.sides = [5, 3, 12, 4, 5]  # Invalid, should not change
+    circle1.sides = [15]  # Perimeter will change according to new radius 7.5
+
+    # Print the sides after attempting to change
+    print("\nSides After Change Attempt:")
+    print(f"Circle (perimeter): {circle1.sides}")
+    print(f"Cube: {cube1.sides}")
+
+    # Print perimeter (len) and areas (square, volume)
+    print("\nPerimeter, Area and Volume:")
+    print(f"Circle perimeter (len): {len(circle1)}")
+    print(f"Circle area (square): {circle1.square}")
+    print(f"Triangle area (square): {triangle1.square}")
+    print(f"Cube area (square): {cube1.square}")
+    print(f"Cube volume: {cube1.volume}")
 
 
 if __name__ == '__main__':
