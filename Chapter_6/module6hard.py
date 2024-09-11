@@ -53,6 +53,7 @@
 """
 
 import math
+from typing import Optional, Tuple, Union, List
 
 # Error Messages
 INVALID_COLOR_MSG = "Color values must be integers between 0 and 255."
@@ -70,17 +71,17 @@ class Color:
             raise ValueError(INVALID_COLOR_MSG)
 
     @property
-    def rgb_color(self):
+    def rgb_color(self) -> Tuple[int, int, int]:
         return self.__r, self.__g, self.__b
 
     @rgb_color.setter
-    def rgb_color(self, values):
+    def rgb_color(self, values: Tuple[int, int, int]):
         if isinstance(values, tuple) and len(values) == 3 and all(isinstance(val, int) for val in values):
             if self._is_valid_color(*values):
                 self.__r, self.__g, self.__b = values
 
     @staticmethod
-    def _is_valid_color(r, g, b) -> bool:
+    def _is_valid_color(r: int, g: int, b: int) -> bool:
         return all(0 <= val <= 255 for val in (r, g, b))
 
 
@@ -88,103 +89,104 @@ class Figure:
     SIDES_COUNT = 0
     DEFAULT_COLOR = Color(255, 0, 0)
 
-    def __init__(self, sides=None, color=None):
+    def __init__(self, sides: Optional[List[Union[int, float]]] = None, color: Optional[Tuple[int, int, int]] = None):
         self.__sides = sides if sides is not None and self._is_valid_sides(sides) else [1] * self.SIDES_COUNT
         self.__color = Color(*color) if color is not None else self.DEFAULT_COLOR
         self.filled = False
 
     @property
-    def color(self):
+    def color(self) -> Tuple[int, int, int]:
         return self.__color.rgb_color
 
     @color.setter
-    def color(self, values):
+    def color(self, values: Tuple[int, int, int]):
         self.__color.rgb_color = values
 
     @property
-    def sides(self):
+    def sides(self) -> List[Union[int, float]]:
         return self.__sides
 
     @sides.setter
-    def sides(self, new_sides):
+    def sides(self, new_sides: List[Union[int, float]]):
         self.__sides = new_sides if self._is_valid_sides(new_sides) else [1] * self.SIDES_COUNT
 
-    def _is_valid_sides(self, new_sides):
+    def _is_valid_sides(self, new_sides: List[Union[int, float]]) -> bool:
         return isinstance(new_sides, list) and len(new_sides) == self.SIDES_COUNT and all(
-            isinstance(side, (int, float)) and side > 0 for side in new_sides)
+            isinstance(side, (int, float)) and side > 0 for side in new_sides
+        )
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum(self.__sides)
 
-    def _get_square(self):
+    def _get_square(self) -> float:
         return NotImplemented
 
     @property
-    def square(self):
+    def square(self) -> float:
         return self._get_square()
 
 
 class Circle(Figure):
     SIDES_COUNT = 1
 
-    def __init__(self, color, radius):
-        super().__init__(color=color, sides=[int(radius * 2 * math.pi)])
+    def __init__(self, color: Tuple[int, int, int], radius: float):
+        super().__init__(color=color,
+                         sides=[round(radius * 2 * math.pi)])  # Precision FAIL According to task conditions
         self._radius = radius
         self._square = self._get_square()
 
     @classmethod
-    def from_length(cls, color, length):
+    def from_length(cls, color: Tuple[int, int, int], length: int) -> 'Circle':
         radius = length / (2 * math.pi)
         return cls(color, radius)
 
     @property
-    def square(self):
+    def square(self) -> float:
         return self._square
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
-    def _get_square(self):
+    def _get_square(self) -> float:
         return math.pi * self._radius ** 2
 
 
 class Triangle(Figure):
     SIDES_COUNT = 3
 
-    def __init__(self, color, side1, side2, side3):
+    def __init__(self, color: Tuple[int, int, int], side1: float, side2: float, side3: float):
         sides = [side1, side2, side3]
         if not self._is_triangle_sides(sides):
             raise ValueError(INVALID_TRIANGLE_SIDES_MSG)
         super().__init__(color=color, sides=sides)
 
-    def _is_triangle_sides(self, sides):
+    def _is_triangle_sides(self, sides: Union[List[float], Tuple[float, float, float]]) -> bool:
         if isinstance(sides, (list, tuple)) and len(sides) == self.SIDES_COUNT:
             a, b, c = sides
             return a + b > c and a + c > b and b + c > a
         return False
 
-    def _get_square(self):
+    def _get_square(self) -> float:
         a, b, c = self.sides
         s = (a + b + c) / 2
-
         return math.sqrt(s * (s - a) * (s - b) * (s - c))
 
 
 class Cube(Figure):
     SIDES_COUNT = 1
 
-    def __init__(self, color, side_length):
+    def __init__(self, color: Tuple[int, int, int], side_length: Union[int, float]):
         if not isinstance(side_length, (int, float)) or side_length <= 0:
             raise ValueError(INVALID_SIDES_MSG)
         super().__init__(color=color, sides=[side_length])
 
-    def _get_square(self):
+    def _get_square(self) -> float:
         side_length = self.sides[0]
         return 6 * pow(side_length, 2)
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         side_length = self.sides[0]
         return pow(side_length, 3)
 
@@ -236,7 +238,7 @@ def main():
     # Crete Circle from length
     special_circle = Circle.from_length(circle1.color, 7)
 
-    print("\nSpecial Circle created from length (Perimeter):")
+    print("\nSpecial Circle created from length:")
     print(f"Special Circle perimeter (len): {len(special_circle)}")
     print(f"Special Circle radius: {special_circle.radius}")
     print(f"Special Circle area (square): {special_circle.square}")
