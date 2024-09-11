@@ -50,16 +50,6 @@
 Пример 3: Cube((200, 200, 100), 9), т.к. сторон(рёбер) у куба - 12, то его стороны будут - [9, 9, 9, ....., 9] (12)
 Пример 4: Cube((200, 200, 100), 9, 12), т.к. сторон(рёбер) у куба - 12, то его стороны будут - [1, 1, 1, ....., 1]
 
-Код для проверки:
-
-
-Выходные данные (консоль):
-[55, 66, 77]
-[222, 35, 130]
-[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
-[15]
-15
-216
 """
 
 import math
@@ -138,9 +128,14 @@ class Circle(Figure):
     SIDES_COUNT = 1
 
     def __init__(self, color, radius):
-        super().__init__(color=color, sides=[radius * 2 * math.pi])
+        super().__init__(color=color, sides=[int(radius * 2 * math.pi)])
         self._radius = radius
         self._square = self._get_square()
+
+    @classmethod
+    def from_length(cls, color, length):
+        radius = length / (2 * math.pi)
+        return cls(color, radius)
 
     @property
     def square(self):
@@ -237,6 +232,14 @@ def main():
     print(f"Triangle area (square): {triangle1.square}")
     print(f"Cube area (square): {cube1.square}")
     print(f"Cube volume: {cube1.volume}")
+
+    # Crete Circle from length
+    special_circle = Circle.from_length(circle1.color, 7)
+
+    print("\nSpecial Circle created from length (Perimeter):")
+    print(f"Special Circle perimeter (len): {len(special_circle)}")
+    print(f"Special Circle radius: {special_circle.radius}")
+    print(f"Special Circle area (square): {special_circle.square}")
 
 
 if __name__ == '__main__':
