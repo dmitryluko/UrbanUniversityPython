@@ -26,21 +26,58 @@ count(self, word) - метод, где word - искомое слово. Воз�
 for name, words in get_all_words().items():
   # Логика методов find или count
 
-Пример результата выполнения программы:
-Представим, что файл 'test_file.txt' содержит следующий текст:
-
-
-Пример выполнения программы:
-finder2 = WordsFinder('test_file.txt')
-print(finder2.get_all_words()) # Все слова
-print(finder2.find('TEXT')) # 3 слово по счёту
-print(finder2.count('teXT')) # 4 слова teXT в тексте всего
-
-Вывод на консоль:
-{'test_file.txt': ["it's", 'a', 'text', 'for', 'task', 'найти', 'везде', 'используйте', 'его', 'для', 'самопроверки', 'успехов', 'в', 'решении', 'задачи', 'text', 'text', 'text']}
-{'test_file.txt': 3}
-{'test_file.txt': 4}
 """
+
+from typing import List, Dict, Optional
+
+
+class WordsFinder:
+    PUNCTUATION_CHARS: List[str] = [',', '.', '=', '!', '?', ';', ':', ' - ']
+
+    def __init__(self, *file_names: str) -> None:
+        self.file_names: List[str] = list(file_names)
+
+    def __extract_cleaned_content(self, file_name: str) -> List[str]:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            content: str = file.read().lower()
+
+            for punctuation in self.PUNCTUATION_CHARS:
+                content = content.replace(punctuation, '')
+
+            return content.split()
+
+    def get_all_words(self) -> Dict[str, List[str]]:
+        all_words: Dict[str, List[str]] = {}
+
+        for file_name in self.file_names:
+            all_words[file_name] = self.__extract_cleaned_content(file_name)
+
+        return all_words
+
+    def find(self, target_word: str) -> Dict[str, Optional[int]]:
+        target_word = target_word.lower()
+        all_words = self.get_all_words()
+        results: Dict[str, Optional[int]] = {}
+
+        for file_name, words in all_words.items():
+            try:
+                index = words.index(target_word)
+                results[file_name] = index + 1  # 1-based index
+
+            except ValueError:
+                results[file_name] = None  # Word not found
+
+        return results
+
+    def count(self, target_word: str) -> Dict[str, int]:
+        target_word = target_word.lower()
+        all_words = self.get_all_words()
+        counts: Dict[str, int] = {}
+
+        for file_name, words in all_words.items():
+            counts[file_name] = words.count(target_word)
+
+        return counts
 
 
 def main():
