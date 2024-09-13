@@ -68,39 +68,46 @@ class Product:
 
 
 class Shop:
-    __default_db: str = './products.txt'
-    __end_of_record: str = '\n'
+    DEFAULT_DB_PATH: str = './products.txt'
+    RECORD_DELIMITER: str = ', '
+    END_OF_RECORD: str = '\n'
 
     def __init__(self) -> None:
-        self._db_path: Path = Path(self.__default_db).absolute()
-        self.__check_db()
+        self._db_path: Path = Path(self.DEFAULT_DB_PATH).absolute()
+        self._initialize_db()
 
-    def __check_db(self) -> None:
+    def _initialize_db(self) -> None:
         if not self._db_path.exists():
             self._db_path.touch()
             self._db_path.write_text('')
 
+    def _parse_product(self, line: str) -> Product:
+        name, weight, category = line.strip().split(self.RECORD_DELIMITER)
+        return Product(name, float(weight), FoodCategories(category))
+
     @property
     def products(self) -> Iterator[Product]:
         try:
-            with open(self._db_path, 'r') as fd:
-                for line in fd:
-                    name, weight, category = line.strip().split(', ')
-                    yield Product(name, float(weight), FoodCategories(category))
+            with open(self._db_path, 'r') as file:
+                for line in file:
+                    yield self._parse_product(line)
+
         except Exception as e:
-            print(f"Error reading products: {e}")
+            print(f'Error reading products: {e}')
 
     def add(self, *products: Product) -> None:
-        existing_products: List[Product] = list(self.products)  # Convert to list to check existence
+        existing_products: List[Product] = list(self.products)
+
         for product in products:
             if any(p.name == product.name for p in existing_products):
-                print(f'Продукт {product.name} уже есть в магазине')
+                print(f'Product {product.name} already exists in the shop')
                 continue
             try:
-                with open(self._db_path, 'a') as fd:
-                    fd.write(f'{product}{self.__end_of_record}')
+                with open(self._db_path, 'a') as file:
+                    file.write(f'{product}{self.END_OF_RECORD}')
+
             except Exception as e:
-                print(f"Error adding product {product.name}: {e}")
+                print(f'Error adding product {product.name}: {e}')
 
 
 def main() -> None:
