@@ -40,6 +40,9 @@ Potato, 50.5, Vegetables
 Spaghetti, 3.4, Groceries
 Potato, 5.5, Vegetables
 """
+from pathlib import Path
+from typing import Iterator, List
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -54,15 +57,64 @@ class FoodCategories(Enum):
     OTHERS = 'Others'
 
 
+@dataclass
 class Product:
-    def __init__(self, name: str, weight: float, category: str):
-        self.name = name
-        self.weight = weight
-        self.category = category
+    name: str
+    weight: float
+    category: FoodCategories
+
+    def __str__(self) -> str:
+        return f'{self.name}, {self.weight}, {self.category.value}'
 
 
-def main():
-    pass
+class Shop:
+    __default_db: str = './products.txt'
+    __end_of_record: str = '\n'
+
+    def __init__(self) -> None:
+        self._db_path: Path = Path(self.__default_db).absolute()
+        self.__check_db()
+
+    def __check_db(self) -> None:
+        if not self._db_path.exists():
+            self._db_path.touch()
+            self._db_path.write_text('')
+
+    @property
+    def products(self) -> Iterator[Product]:
+        try:
+            with open(self._db_path, 'r') as fd:
+                for line in fd:
+                    name, weight, category = line.strip().split(', ')
+                    yield Product(name, float(weight), FoodCategories(category))
+        except Exception as e:
+            print(f"Error reading products: {e}")
+
+    def add(self, *products: Product) -> None:
+        existing_products: List[Product] = list(self.products)  # Convert to list to check existence
+        for product in products:
+            if any(p.name == product.name for p in existing_products):
+                print(f'Продукт {product.name} уже есть в магазине')
+                continue
+            try:
+                with open(self._db_path, 'a') as fd:
+                    fd.write(f'{product}{self.__end_of_record}')
+            except Exception as e:
+                print(f"Error adding product {product.name}: {e}")
+
+
+def main() -> None:
+    s1 = Shop()
+    p1 = Product('Potato', 50.5, FoodCategories.VEGETABLES)
+    p2 = Product('Spaghetti', 3.4, FoodCategories.GROCERIES)
+    p3 = Product('Potato', 5.5, FoodCategories.VEGETABLES)
+
+    print(p2)  # __str__
+
+    s1.add(p1, p2, p3)
+
+    for product in s1.products:
+        print(product)
 
 
 if __name__ == '__main__':
