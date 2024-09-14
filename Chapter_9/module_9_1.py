@@ -19,17 +19,26 @@ max - принимает список, возвращает максимальн
 len - принимает список, возвращает кол-во элементов в нём.
 sum - принимает список, возвращает сумму его элементов.
 sorted - принимает список, возвращает новый отсортированный список на основе переданного.
-Пример работы кода:
-print(apply_all_func([6, 20, 15, 9], max, min))
-print(apply_all_func([6, 20, 15, 9], len, sum, sorted))
-Вывод на консоль:
-{'max': 20, 'min': 6} {'len': 4, 'sum': 50, 'sorted': [6, 9, 15, 20]}
 
 """
 
+INITIAL_RESULTS = {}
+
+
+def apply_function(func, numbers):
+    return func(numbers)
+
+
+def apply_all_func(numbers, *functions):
+    results = INITIAL_RESULTS.copy()
+    for func in functions:
+        results[func.__name__] = apply_function(func, numbers)
+    return results
+
 
 def main():
-    pass
+    print(apply_all_func([6, 20, 15, 9], max, min))
+    print(apply_all_func([6, 20, 15, 9], len, sum, sorted))
 
 
 if __name__ == '__main__':
