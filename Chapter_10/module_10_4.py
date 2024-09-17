@@ -35,7 +35,7 @@ from threading import Thread
 from queue import Queue
 import time
 import random
-from typing import Any, List, Optional
+from typing import List, Optional
 
 
 class Table:
