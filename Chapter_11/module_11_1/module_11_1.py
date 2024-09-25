@@ -1,6 +1,9 @@
 from pprint import pprint
 import requests
 from typing import Dict, Any, Tuple
+from typing import List
+from rich.console import Console
+from rich.table import Table
 
 
 class Location:
@@ -13,7 +16,7 @@ class Location:
         self.__raw_data = {}
         try:
             self.__coordinates = self._validate_and_get_location_details(**kwargs)
-            self.__raw_data = self._get_weather_details(**self.__coordinates)
+            self.__raw_data = self.get_weather_details(**self.__coordinates)
         except ValueError as e:
             print(e)
             self.__raw_data = {}
@@ -38,7 +41,7 @@ class Location:
             raise ValueError("City not found")
         return {'lat': results[0]['lat'], 'lon': results[0]['lon']}
 
-    def _get_weather_details(self, **coordinates) -> Dict[str, Any]:
+    def get_weather_details(self, **coordinates) -> Dict[str, Any]:
         params = {
             'lat': coordinates['lat'],
             'lon': coordinates['lon'],
@@ -49,11 +52,66 @@ class Location:
         return response.json()
 
 
-# Example usage
+class Weather:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.console = Console()
+
+    def get_weather_report(self, targets: List[str]):
+        for target in targets:
+            location = Location(api_key=self.api_key, name=target)
+            weather_data = location.get_weather_details(**location._validate_and_get_location_details(name=target))
+
+            self.console.print(f"[bold]Weather for {target}[/bold]")
+            self._print_current_weather(weather_data)
+            self._print_three_day_forecast(weather_data)
+
+    def _print_current_weather(self, data: Dict[str, Any]):
+        current = data.get('current', {})
+        table = Table(title="Current Weather")
+
+        table.add_column("Description")
+        table.add_column("Temperature (°C)")
+        table.add_column("Humidity (%)")
+        table.add_column("Wind Speed (m/s)")
+
+        table.add_row(
+            current.get('weather', [{}])[0].get('description', 'N/A'),
+            str(current.get('temp', 'N/A')),
+            str(current.get('humidity', 'N/A')),
+            str(current.get('wind_speed', 'N/A'))
+        )
+
+        self.console.print(table)
+
+    def _print_three_day_forecast(self, data: Dict[str, Any]):
+        daily = data.get('daily', [])
+        table = Table(title="3-Day Forecast")
+
+        table.add_column("Day")
+        table.add_column("Description")
+        table.add_column("Max Temp (°C)")
+        table.add_column("Min Temp (°C)")
+
+        for i, day in enumerate(daily[:3]):
+            table.add_row(
+                f"Day {i + 1}",
+                day.get('weather', [{}])[0].get('description', 'N/A'),
+                str(day.get('temp', {}).get('max', 'N/A')),
+                str(day.get('temp', {}).get('min', 'N/A'))
+            )
+
+        self.console.print(table)
+
+
+# Update `main` function to demonstrate the Weather class usage:
 def main():
     api_key = '088762ed0e87d25d2afadf68da481fe2'
-    location = Location(api_key=api_key, name='Moscow')
-    pprint(location.__dict__)
+    targets = ['Moscow', 'New York', 'Tokyo']
+    weather = Weather(api_key=api_key)
+    weather.get_weather_report(targets)
+    pass
+
 
 
 # Run the example
