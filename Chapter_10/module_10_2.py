@@ -21,11 +21,11 @@ import time
 
 
 class Knight(threading.Thread):
-    TOTAL_ENEMIES = 100  # Class variable shared among all instances
     SLEEP_DURATION = 1  # Sleep duration in seconds
 
     def __init__(self, name: str, power: int):
         super().__init__()
+        self.TOTAL_ENEMIES = 100  # Class variable shared among all instances
         self.name = name
         self.power = power
 
@@ -33,10 +33,10 @@ class Knight(threading.Thread):
         days = 0
         self.announce_attack()
 
-        while Knight.TOTAL_ENEMIES > 0:
+        while self.TOTAL_ENEMIES > 0:
             self.fight_one_day()
             days += 1
-            if Knight.TOTAL_ENEMIES > 0:
+            if self.TOTAL_ENEMIES > 0:
                 self.report_progress(days)
             else:
                 self.announce_victory(days)
@@ -48,13 +48,13 @@ class Knight(threading.Thread):
     def fight_one_day(self) -> None:
         time.sleep(Knight.SLEEP_DURATION)
 
-        if Knight.TOTAL_ENEMIES <= self.power:
-            Knight.TOTAL_ENEMIES = 0
+        if self.TOTAL_ENEMIES <= self.power:
+            self.TOTAL_ENEMIES = 0
         else:
-            Knight.TOTAL_ENEMIES -= self.power
+            self.TOTAL_ENEMIES -= self.power
 
     def report_progress(self, days: int) -> None:
-        print(f'{self.name} сражается {days} день(дня/дней)..., осталось {Knight.TOTAL_ENEMIES} воинов.')
+        print(f'{self.name} сражается {days} день(дня/дней)..., осталось {self.TOTAL_ENEMIES} воинов.')
 
     def announce_victory(self, days: int) -> None:
 
