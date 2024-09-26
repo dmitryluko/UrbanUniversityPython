@@ -25,7 +25,7 @@ class Knight(threading.Thread):
 
     def __init__(self, name: str, power: int):
         super().__init__()
-        self.TOTAL_ENEMIES = 100  # Class variable shared among all instances
+        self.TOTAL_ENEMIES = 100
         self.name = name
         self.power = power
 
@@ -54,6 +54,7 @@ class Knight(threading.Thread):
             self.TOTAL_ENEMIES -= self.power
 
     def report_progress(self, days: int) -> None:
+
         print(f'{self.name} сражается {days} день(дня/дней)..., осталось {self.TOTAL_ENEMIES} воинов.')
 
     def announce_victory(self, days: int) -> None:
