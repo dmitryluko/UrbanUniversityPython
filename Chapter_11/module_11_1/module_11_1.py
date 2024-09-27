@@ -44,7 +44,6 @@ class LocationWeatherPoint:
         params = {
             'q': city_name,
             'appid': self.api_key,
-            'units': 'metric'  # Specify metric units
         }
         response = requests.get(self.GEOCODING_API_URL, params=params)
         response.raise_for_status()
@@ -61,8 +60,7 @@ class LocationWeatherPoint:
     def lon(self):
         return self.__lon
 
-    def get_weather_details(self) -> Dict[str, Any]:  # FIXME
-
+    def get_weather_details(self) -> Dict[str, Any]:
         params = {
             'lat': self.lat,
             'lon': self.lon,
@@ -133,91 +131,115 @@ class Weather:
 
 
 class WeatherHistory:
-    def __init__(self, api_key, location: LocationWeatherPoint = None):
+
+    def __init__(self, api_key=None, location: LocationWeatherPoint = None):
         self.api_key = api_key
         self.location = location
         self.history_data = pd.DataFrame()
 
     def fetch_weather_data(self):
         """Fetch weather data for the past 30 years for the given location."""
-        # Define the base URL template for the OpenWeatherMap historical data API
-        url_template = "https://history.openweathermap.org/data/2.5/history/city?lat={}&lon={}&type=hour&start={}&cnt={}&appid={}"
-        lat, lon = self.location
+        url_template = "https://history.openweathermap.org/data/2.5/history/city?lat={}&lon={}&appid={}"
+        lat, lon = self.location.lat, self.location.lon
 
         for year in range(1994, 2024):
-            start_timestamp = int(pd.Timestamp(f'{year}-01-01').timestamp())
-            end_timestamp = int(pd.Timestamp(f'{year}-12-31').timestamp())
-            cnt = 8760  # Approximate number of hourly data points in a year (24*365)
-            url = url_template.format(lat, lon, start_timestamp, cnt, self.api_key)
+            url = url_template.format(lat, lon, self.api_key)
             response = requests.get(url)
+
             if response.status_code == 200:
                 yearly_data = response.json()
                 if 'list' in yearly_data:
-                    yearly_df = pd.DataFrame(yearly_data['list'])
+                    yearly_df = self._process_yearly_data(yearly_data['list'])
                     self.history_data = pd.concat([self.history_data, yearly_df], ignore_index=True)
                 else:
                     print(f"No data for year: {year}")
             else:
                 print(f"Failed to fetch data for year: {year}, Status Code: {response.status_code}")
 
-        self.history_data.to_csv(f'historical_weather_data_{self.location.name}.csv', index=False)
+        self._save_data_to_csv()
+
+    def _process_yearly_data(self, data):
+        """Process the yearly data into a DataFrame."""
+        df = pd.DataFrame(data)
+        if 'dt' in df.columns:
+            df['date'] = pd.to_datetime(df['dt'], unit='s')
+        return df
+
+    def _save_data_to_csv(self):
+        """Save the history data to a CSV file."""
+        filename = f'historical_weather_data_{self.location.name}.csv'
+        self.history_data.to_csv(filename, index=False)
+        print(f"Data saved to {filename}")
 
     def generate_analytics(self):
         """Generate useful analytics from the weather data."""
-        self.history_data['datetime'] = pd.to_datetime(self.history_data['date'])
-        self.history_data.set_index('datetime', inplace=True)
-        self.daily_mean = self.history_data.resample('D').mean()
-        self.monthly_mean = self.history_data.resample('M').mean()
-        self.yearly_mean = self.history_data.resample('Y').mean()
+        print('Generating analytics...')
+        # if 'date' in self.history_data.columns:
+        #     self.history_data['datetime'] = pd.to_datetime(self.history_data['date'])
+        #     self.history_data.set_index('datetime', inplace=True)
+        #     self.daily_mean = self.history_data.resample('D').mean()
+        #     self.monthly_mean = self.history_data.resample('M').mean()
+        #     self.yearly_mean = self.history_data.resample('Y').mean()
+        # else:
+        #     print("Error: 'date' column is missing in the data.")
 
     def plot_data(self):
         """Generate and display plots for weather data."""
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.daily_mean['temperature'], label='Daily Mean Temperature')
-        plt.plot(self.monthly_mean['temperature'], label='Monthly Mean Temperature')
-        plt.plot(self.yearly_mean['temperature'], label='Yearly Mean Temperature')
-        plt.xlabel('Date')
-        plt.ylabel('Temperature')
-        plt.title(f'Temperature Trends Over 30 Years in {self.location.name}')
-        plt.legend()
-        plt.show()
+        print('Plotting data...')
+        # plt.figure(figsize=(10, 6))
+        # self._plot_series(self.daily_mean, 'Daily Mean Temperature', 'temperature')
+        # self._plot_series(self.monthly_mean, 'Monthly Mean Temperature', 'temperature')
+        # self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'temperature')
+        # plt.xlabel('Date')
+        # plt.ylabel('Temperature')
+        # plt.title(f'Temperature Trends Over 30 Years in {self.location.name}')
+        # plt.legend()
+        # plt.show()
+
+    def _plot_series(self, series, label, column):
+        """Plot a data series."""
+        if series is not None:
+            plt.plot(series[column], label=label)
 
     def generate_pdf_report(self, filename):
         """Generate a PDF report of the analytics."""
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=f"Weather History Report for {self.location.name}", ln=True, align='C')
-        pdf.set_font("Arial", size=10)
-        pdf.multi_cell(0, 10, txt="This report contains weather history analytics for the past 30 years.")
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.yearly_mean['temperature'], label='Yearly Mean Temperature')
-        plt.xlabel('Date')
-        plt.ylabel('Temperature')
-        plt.title('Yearly Temperature Trends')
-        plt.legend()
-        plt.savefig('temp_plot.png')
-        pdf.image('temp_plot.png', x=10, y=50, w=190)
-        pdf.output(filename)
-        print(f"PDF report generated: {filename}")
+        print('Generating PDF report...')
+        # pdf = FPDF()
+        # pdf.add_page()
+        # pdf.set_font("Arial", size=12)
+        # pdf.cell(200, 10, txt=f"Weather History Report for {self.location.name}", ln=True, align='C')
+        # pdf.set_font("Arial", size=10)
+        # pdf.multi_cell(0, 10, txt="This report contains weather history analytics for the past 30 years.")
+        #
+        # plt.figure(figsize=(10, 6))
+        # self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'temperature')
+        # plt.xlabel('Date')
+        # plt.ylabel('Temperature')
+        # plt.title('Yearly Temperature Trends')
+        # plt.legend()
+        # plt.savefig('temp_plot.png')
+        #
+        # pdf.image('temp_plot.png', x=10, y=50, w=190)
+        # pdf.output(filename)
+        # print(f"PDF report generated: {filename}")
 
 
 # Update `main` function to demonstrate the Weather class usage:
 def main():
-    api_key = os.getenv('API_KEY')  # Get the API key from environment variables
-    if not api_key:
+    API_KEY = os.getenv('API_KEY')  # Get the API key from environment variables
+    if not API_KEY:
         raise ValueError("API key not found in environment variables")
 
     targets = ['Moscow', 'New York', 'Tokyo']
-    weather_ = Weather(api_key=api_key)
+    weather_ = Weather(api_key=API_KEY)
     weather_.get_weather_report(targets)
 
-    # location = Location(name='Los Angeles')
-    # weather_history = WeatherHistory(api_key, location)
-    # weather_history.fetch_weather_data()
-    # weather_history.generate_analytics()
-    # weather_history.plot_data()
-    # weather_history.generate_pdf_report('weather_report.pdf')
+    location = LocationWeatherPoint(api_key=API_KEY, name='Los Angeles')
+    weather_history = WeatherHistory(api_key=API_KEY, location=location)
+    weather_history.fetch_weather_data()
+    weather_history.generate_analytics()
+    weather_history.plot_data()
+    weather_history.generate_pdf_report('weather_report.pdf')
 
 
 # Run the example
