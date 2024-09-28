@@ -247,11 +247,11 @@ class WeatherHistory:
         """
         plt.figure(figsize=(10, 6))
         if not self.daily_mean.empty:
-            self._plot_series(self.daily_mean, 'Daily Mean Temperature', 'temp')
+            self._plot_series(self.daily_mean, 'Daily Mean Temperature')
         if not self.monthly_mean.empty:
-            self._plot_series(self.monthly_mean, 'Monthly Mean Temperature', 'temp')
+            self._plot_series(self.monthly_mean, 'Monthly Mean Temperature')
         if not self.yearly_mean.empty:
-            self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'temp')
+            self._plot_series(self.yearly_mean, 'Yearly Mean Temperature')
         plt.xlabel('Date')
         plt.ylabel('Temperature')
         plt.title(f'Temperature Trends Over 30 Years in {self.location}')
@@ -259,18 +259,15 @@ class WeatherHistory:
         plt.show()
 
     @staticmethod
-    def _plot_series(df, label, column):
-        """
-        Helper method to plot a series.
-        Parameters:
-        df (pd.DataFrame): DataFrame containing the data.
-        label (str): Label for the plot.
-        column (str): The column to be plotted.
-        """
-        if column in df.columns:
-            plt.plot(df.index, df[column], label=label)
+    def _plot_series(df, label):
+
+        logging.info(f"Plotting '{df.info}'...")
+
+        if df.values is not None and len(df.values) > 0:
+            logging.info(f'Plotting with label "{label}"...')
+            plt.plot(df.index, df.values, label=label)
         else:
-            logging.warning(f"Column '{column}' not found in DataFrame.")
+            logging.warning(f'Values not found!')
 
     def generate_pdf_report(self, filename):
         """
@@ -304,15 +301,15 @@ def main():
     if not API_KEY:
         raise ValueError("API key not found in environment variables")
 
-    targets = ['Moscow', 'New York', 'Tokyo']
-    weather_ = Weather(api_key=API_KEY)
-    weather_.get_weather_report(targets)
+    # targets = ['Moscow', 'New York', 'Tokyo']
+    # weather_ = Weather(api_key=API_KEY)
+    # weather_.get_weather_report(targets)
 
     location = LocationWeatherPoint(api_key=API_KEY, name='Los Angeles')
     weather_history = WeatherHistory(api_key=API_KEY, location=location)
     weather_history.fetch_weather_data()
     weather_history.generate_analytics()
-    # weather_history.plot_data()
+    weather_history.plot_data()
     # weather_history.generate_pdf_report('weather_report.pdf')
 
 
