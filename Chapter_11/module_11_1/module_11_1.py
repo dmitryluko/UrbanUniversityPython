@@ -135,7 +135,7 @@ class Weather:
 
 
 class WeatherHistory:
-    def __init__(self, api_key=None, location=None):
+    def __init__(self, api_key=None, location: LocationWeatherPoint = None):
         """
         Initialize the WeatherHistory object.
 
@@ -148,6 +148,7 @@ class WeatherHistory:
         self.daily_mean = pd.DataFrame()
         self.monthly_mean = pd.DataFrame()
         self.yearly_mean = pd.DataFrame()
+        self.__raw_data: pd.DataFrame = pd.DataFrame()
 
     def fetch_weather_data(self):
         """
@@ -158,39 +159,36 @@ class WeatherHistory:
             return
 
         # Example URL, replace with actual API endpoint
-        url = f"https://api.weather.com/v1/location/{self.location.lat},{self.location.lon}/observations/historical.json?apiKey={self.api_key}"
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={self.location.lat}&lon={self.location.lon}&type=hour&appid={self.api_key}'
         response = requests.get(url)
 
         if response.status_code == 200:
             data = response.json()
-            self.process_yearly_weather_data(data)
+            self.__raw_data = self.process_yearly_weather_data(data)
         else:
             logging.error(f"Failed to fetch data: {response.status_code} {response.reason}")
 
     @staticmethod
-    def process_yearly_weather_data(data):
+    def process_yearly_weather_data(data) -> pd.DataFrame:
         """
         Process the yearly data into a DataFrame.
-
         Parameters:
-        data (list or dict): Raw weather data that can be converted to a DataFrame.
-
+        data (dict): Raw weather data that contains a list of weather records.
         Returns:
         pd.DataFrame: Processed DataFrame with datetime conversion.
         """
         logging.info('Processing yearly data...')
 
-        if not data:
-            logging.warning('No data provided.')
-            return pd.DataFrame()  # Return an empty DataFrame
-
-        if not isinstance(data, (list, dict)):
-            logging.error('Invalid data format. Expected a list or dict.')
+        if not data or 'list' not in data:
+            logging.warning('No data provided or "list" key is missing in the data.')
             return pd.DataFrame()  # Return an empty DataFrame
 
         try:
+            # Extract the list of weather records
+            weather_records = data['list']
+
             # Create DataFrame
-            df = pd.DataFrame(data)
+            df = pd.json_normalize(weather_records)
 
             # Define the date column
             date_column = 'dt'
@@ -202,21 +200,22 @@ class WeatherHistory:
             else:
                 logging.warning(f"'{date_column}' column is missing in the data.")
 
+            # Set 'date' as the index
+            df.set_index('date', inplace=True)
             return df
         except Exception as e:
             logging.error(f'An error occurred during processing: {e}')
             return pd.DataFrame()  # Return an empty DataFrame in case of error
 
-    def _save_data_to_csv(self, df: pd.DataFrame, filename: str) -> None:
+    def _save_data_to_csv(self, filename: str) -> None:
         """
         Save data to a CSV file.
-
         Parameters:
         df (pd.DataFrame): DataFrame to be saved.
         filename (str): Name of the file where data will be saved.
         """
         try:
-            df.to_csv(filename, index=False)
+            self.__raw_data.to_csv(filename, index=False)
             logging.info(f"Data saved to {filename}.")
         except Exception as e:
             logging.error(f"Failed to save data to CSV: {e}")
@@ -224,15 +223,17 @@ class WeatherHistory:
     def generate_analytics(self):
         """
         Generate analytics such as daily, monthly, and yearly mean temperatures.
+        Parameters:
+        df (pd.DataFrame): Processed DataFrame containing weather data.
         """
-        if self.daily_mean.empty:
+        if self.__raw_data.empty:
             logging.warning("No data to generate analytics.")
             return
 
-        # Example calculations for mean temperatures
-        self.daily_mean['daily_mean'] = self.daily_mean['temp'].resample('D').mean()
-        self.monthly_mean['monthly_mean'] = self.daily_mean['temp'].resample('M').mean()
-        self.yearly_mean['yearly_mean'] = self.daily_mean['temp'].resample('Y').mean()
+        # Resampling and calculating mean temperatures
+        self.daily_mean = self.__raw_data.resample('D').mean()
+        self.monthly_mean = self.__raw_data.resample('M').mean()
+        self.yearly_mean = self.__raw_data.resample('Y').mean()
 
         logging.info("Analytics generated.")
 
@@ -240,33 +241,28 @@ class WeatherHistory:
         """
         Plot data for visualization.
         """
-        import matplotlib.pyplot as plt
-
         plt.figure(figsize=(10, 6))
         if not self.daily_mean.empty:
-            self._plot_series(self.daily_mean, 'Daily Mean Temperature', 'daily_mean')
+            self._plot_series(self.daily_mean, 'Daily Mean Temperature', 'temp')
         if not self.monthly_mean.empty:
-            self._plot_series(self.monthly_mean, 'Monthly Mean Temperature', 'monthly_mean')
+            self._plot_series(self.monthly_mean, 'Monthly Mean Temperature', 'temp')
         if not self.yearly_mean.empty:
-            self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'yearly_mean')
-
+            self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'temp')
         plt.xlabel('Date')
         plt.ylabel('Temperature')
-        plt.title(f'Temperature Trends Over 30 Years in {self.location.name}')
+        plt.title(f'Temperature Trends Over 30 Years in {self.location}')
         plt.legend()
         plt.show()
 
-    def _plot_series(self, df, label, column):
+    @staticmethod
+    def _plot_series(df, label, column):
         """
         Helper method to plot a series.
-
         Parameters:
         df (pd.DataFrame): DataFrame containing the data.
         label (str): Label for the plot.
         column (str): The column to be plotted.
         """
-        import matplotlib.pyplot as plt
-
         if column in df.columns:
             plt.plot(df.index, df[column], label=label)
         else:
@@ -275,29 +271,25 @@ class WeatherHistory:
     def generate_pdf_report(self, filename):
         """
         Generate a PDF report with the weather history analytics.
-
         Parameters:
         filename (str): The name of the PDF file to be generated.
         """
-        from fpdf import FPDF
-        import matplotlib.pyplot as plt
-
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=f"Weather History Report for {self.location.name}", ln=True, align='C')
+        pdf.cell(200, 10, txt=f"Weather History Report for {self.location}", ln=True, align='C')
         pdf.set_font("Arial", size=10)
         pdf.multi_cell(0, 10, txt="This report contains weather history analytics for the past 30 years.")
 
         plt.figure(figsize=(10, 6))
-        self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'yearly_mean')
+        self._plot_series(self.yearly_mean, 'Yearly Mean Temperature', 'temp')
         plt.xlabel('Date')
         plt.ylabel('Temperature')
         plt.title('Yearly Temperature Trends')
         plt.legend()
         plt.savefig('temp_plot.png')
-
         pdf.image('temp_plot.png', x=10, y=50, w=190)
+
         pdf.output(filename)
         logging.info(f"PDF report generated: {filename}")
 
