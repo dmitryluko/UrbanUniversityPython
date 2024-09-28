@@ -201,7 +201,9 @@ class WeatherHistory:
                 logging.warning(f"'{date_column}' column is missing in the data.")
 
             # Set 'date' as the index
+
             df.set_index('date', inplace=True)
+
             return df
         except Exception as e:
             logging.error(f'An error occurred during processing: {e}')
@@ -226,16 +228,18 @@ class WeatherHistory:
         Parameters:
         df (pd.DataFrame): Processed DataFrame containing weather data.
         """
+        logging.info("Generating analytics...")
+
         if self.__raw_data.empty:
             logging.warning("No data to generate analytics.")
             return
 
         # Resampling and calculating mean temperatures
-        self.daily_mean = self.__raw_data.resample('D').mean()
-        self.monthly_mean = self.__raw_data.resample('M').mean()
-        self.yearly_mean = self.__raw_data.resample('Y').mean()
+        self.daily_mean = self.__raw_data['main.temp'].resample('D').mean()
+        self.monthly_mean = self.__raw_data['main.temp'].resample('ME').mean()
+        self.yearly_mean = self.__raw_data['main.temp'].resample('YE').mean()
 
-        logging.info("Analytics generated.")
+    logging.info("Analytics generated.")
 
     def plot_data(self):
         """
@@ -308,8 +312,8 @@ def main():
     weather_history = WeatherHistory(api_key=API_KEY, location=location)
     weather_history.fetch_weather_data()
     weather_history.generate_analytics()
-    weather_history.plot_data()
-    weather_history.generate_pdf_report('weather_report.pdf')
+    # weather_history.plot_data()
+    # weather_history.generate_pdf_report('weather_report.pdf')
 
 
 # Run the example
