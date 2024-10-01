@@ -23,7 +23,7 @@ def main():
     weather_history.fetch_weather_data()
     weather_history.generate_analytics()
     weather_history.plot_data()
-    # weather_history.generate_pdf_report('weather_report.pdf')
+    weather_history.generate_pdf_report('weather_report.pdf')
 
 
 if __name__ == '__main__':

@@ -20,13 +20,13 @@ class WeatherHistory:
         self.api_key = api_key
         self.location = location
 
-        self.daily_mean: pd.DataFrame = pd.DataFrame()
-        self.monthly_mean: pd.DataFrame = pd.DataFrame()
-        self.yearly_mean: pd.DataFrame = pd.DataFrame()
-        self.month_by_year: pd.DataFrame = pd.DataFrame()
-        self.year_by_month: pd.DataFrame = pd.DataFrame()
-        self.year_by_day: pd.DataFrame = pd.DataFrame()
-        self.day_by_year: pd.DataFrame = pd.DataFrame()
+        self.daily_mean: pd.Series = pd.Series()
+        self.monthly_mean: pd.Series = pd.Series()
+        self.yearly_mean: pd.Series = pd.Series()
+        # self.month_by_year: pd.DataFrame = pd.DataFrame()
+        # self.year_by_month: pd.DataFrame = pd.DataFrame()
+        # self.year_by_day: pd.DataFrame = pd.DataFrame()
+        # self.day_by_year: pd.DataFrame = pd.DataFrame()
 
         self._raw_data: pd.DataFrame = pd.DataFrame()
 
@@ -85,8 +85,22 @@ class WeatherHistory:
         logging.info('Analytics generated.')
 
     @staticmethod
-    def _get_mean_series(df: pd.DataFrame, freq: str) -> pd.DataFrame:
-        return df['main.temp'].resample(freq).mean()
+    def _get_mean_series(df: pd.DataFrame, freq: str) -> pd.Series:
+
+        if 'main.temp' not in df.columns:
+            logging.warning("'main.temp' column is missing in the data.")
+            return pd.Series()
+
+        try:
+            mean_series = df.resample(freq)['main.temp'].mean()
+            logging.info(f'Mean series computed with frequency "{freq}".')
+            return mean_series
+        except KeyError as e:
+            logging.error(f'Column missing for resampling: {e}')
+            return pd.Series()
+        except Exception as e:
+            logging.error(f'An error occurred during resampling: {e}')
+            return pd.Series()
 
     def plot_data(self):
         plt.figure(figsize=PLOT_FIG_SIZE)
