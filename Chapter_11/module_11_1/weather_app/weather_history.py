@@ -3,7 +3,6 @@ import requests
 import matplotlib.pyplot as plt
 import logging
 from typing import Optional, Dict, Tuple
-
 from fpdf import FPDF
 from .location_weather import LocationWeatherPoint
 
@@ -17,22 +16,23 @@ PLOT_FIG_SIZE = (10, 6)
 
 class WeatherHistory:
     def __init__(self, api_key: str, location: Optional[LocationWeatherPoint] = None):
-        self.date_for_years = None
-        self.api_key = api_key
-        self.location = location
-
+        self.api_key: str = api_key
+        self.location: Optional[LocationWeatherPoint] = location
         self.daily_mean: pd.DataFrame = pd.DataFrame()
         self.monthly_mean: pd.DataFrame = pd.DataFrame()
         self.yearly_mean: pd.DataFrame = pd.DataFrame()
-
         self._raw_data: pd.DataFrame = pd.DataFrame()
+        self.date_for_years: Optional[pd.DataFrame] = None
 
-    def fetch_weather_data(self):
+    def fetch_weather_data(self) -> None:
         if not self.api_key or not self.location:
             logging.error('API key or location not set.')
             return
+
         response = requests.get(
-            API_URL_TEMPLATE.format(lat=self.location.lat, lon=self.location.lon, apikey=self.api_key))
+            API_URL_TEMPLATE.format(lat=self.location.lat, lon=self.location.lon, apikey=self.api_key)
+        )
+
         if response.status_code == 200:
             data = response.json()
             self._raw_data = self.process_weather_data(data)
@@ -45,6 +45,7 @@ class WeatherHistory:
         if not data or 'list' not in data:
             logging.warning('No data provided or "list" key is missing in the data.')
             return pd.DataFrame()
+
         try:
             weather_records = data['list']
             df = pd.json_normalize(weather_records)
@@ -71,8 +72,8 @@ class WeatherHistory:
         except Exception as e:
             logging.error(f'Failed to save data to CSV: {e}')
 
-    def __timestamp_to_day_month_year(ts) -> Tuple[int, int, int]:
-
+    @staticmethod
+    def __timestamp_to_day_month_year(ts: int) -> Tuple[int, int, int]:
         try:
             dt = pd.to_datetime(ts, unit='s')
             return dt.day, dt.month, dt.year
@@ -80,33 +81,26 @@ class WeatherHistory:
             logging.error(f'Error converting timestamp to day, month, year: {e}')
             return 0, 0, 0
 
-    def _get_date_stat_for_years(self, given_date) -> pd.DataFrame:
-        # Ensure the raw data is not empty
+    def _get_date_stat_for_years(self, given_date: str) -> pd.DataFrame:
         if self._raw_data.empty:
             logging.warning('Raw data is empty. Cannot compute statistics.')
             return pd.DataFrame()
 
-        # Convert given_date to datetime
         try:
             given_date = pd.to_datetime(given_date)
         except Exception as e:
             logging.error(f'Invalid date provided: {e}')
             return pd.DataFrame()
 
-        # Extract the year, month, and day from the given_date
-        given_month_day = (given_date.month, given_date.day)
-
-        # Keep only those rows from _raw_data which match the month and day of the given_date across all years
         try:
-            # Convert index to ( month, day )
-            index = self._raw_data.index.map(lambda x: (x.month, x.day))
+            filtered_data = self._raw_data[
+                self._raw_data.index.map(lambda x: (x.day, x.month)) == (given_date.day, given_date.month)
+                ]
 
-            filtered_data = self._raw_data[self._raw_data.index.map(lambda x: (x.month, x.day)) == given_month_day]
         except Exception as e:
             logging.error(f'An error occurred while filtering data: {e}')
             return pd.DataFrame()
 
-        # Check if the filtered data is empty
         if filtered_data.empty:
             logging.warning('No data available for the given date across years.')
             return pd.DataFrame()
@@ -115,20 +109,20 @@ class WeatherHistory:
             f'Statistics for the date {given_date.strftime("%Y-%m-%d")} across all years computed successfully.')
         return filtered_data
 
-    def generate_analytics(self):
+    def generate_analytics(self) -> None:
         logging.info('Generating analytics...')
         if self._raw_data.empty:
             logging.warning('No data to generate analytics.')
             return
-        self.daily_mean = self._get_mean_series(self._raw_data, 'D')
-        self.monthly_mean = self._get_mean_series(self._raw_data, 'ME')
-        self.yearly_mean = self._get_mean_series(self._raw_data, 'YE')
+
+        # self.daily_mean = self._get_mean_series(self._raw_data, 'D')
+        # self.monthly_mean = self._get_mean_series(self._raw_data, 'M')
+        # self.yearly_mean = self._get_mean_series(self._raw_data, 'Y')
         self.date_for_years = self._get_date_stat_for_years(pd.to_datetime('today').strftime('%m:%d'))
         logging.info('Analytics generated.')
 
     @staticmethod
     def _get_mean_series(df: pd.DataFrame, freq: str) -> pd.DataFrame:
-
         if 'main.temp' not in df.columns:
             logging.warning("'main.temp' column is missing in the data.")
             return pd.DataFrame()
@@ -144,10 +138,12 @@ class WeatherHistory:
             logging.error(f'An error occurred during resampling: {e}')
             return pd.DataFrame()
 
-    def _plot_date_for_years_stats(self):
-
+    def _plot_date_for_years_stats(self) -> None:
         if self.date_for_years is not None and not self.date_for_years.empty:
-            plt.plot(self.date_for_years.index, self.date_for_years.values, label='Mean Temp for Given Date')
+            temperature_values = self.date_for_years['main_temp'].values
+            date_index = self.date_for_years.index
+            plt.plot(date_index, temperature_values,
+                     label='Mean Temp for Given Date')
             plt.xlabel('Year')
             plt.ylabel('Temperature')
             plt.title('Mean Temperature for Given Date Across Years')
@@ -157,27 +153,27 @@ class WeatherHistory:
         else:
             logging.warning('No data available to plot for the given date across years.')
 
-    def plot_data(self):
+    def plot_data(self) -> None:
         plt.figure(figsize=PLOT_FIG_SIZE)
         self._plot_date_for_years_stats()
 
     @staticmethod
-    def _plot_series(series: pd.Series, label: str):
+    def _plot_series(series: pd.Series, label: str) -> None:
         if not series.empty:
             plt.plot(series.index, series.values, label=label)
             logging.info(f"Plotting '{label}'...")
         else:
-            logging.warning(f"No data available for '{label}'.")
+            logging.warning(f'No data available for "{label}".')
 
-    def generate_pdf_report(self, filename: str):
+    def generate_pdf_report(self, filename: str) -> None:
         pdf = FPDF()
         self._initialize_pdf(pdf, f'Weather History Report for {self.location}')
         plt.figure(figsize=PLOT_FIG_SIZE)
-
-        raise NotImplemented
+        # raise NotImplemented
+        logging.warning('PDF report generation is not implemented yet.')
 
     @staticmethod
-    def _initialize_pdf(pdf: FPDF, title: str):
+    def _initialize_pdf(pdf: FPDF, title: str) -> None:
         pdf.add_page()
         pdf.set_font('Arial', size=12)
         pdf.cell(200, 10, txt=title, ln=True, align='C')

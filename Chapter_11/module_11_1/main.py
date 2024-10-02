@@ -13,9 +13,9 @@ def main():
         raise ValueError('API key not found in environment variables')
 
     # Example usage
-    targets = ['Moscow', 'New York', 'Tokyo']
-    weather_ = Weather(api_key=API_KEY)
-    weather_.get_weather_report(targets)
+    # targets = ['Moscow', 'New York', 'Tokyo']
+    # weather_ = Weather(api_key=API_KEY)
+    # weather_.get_weather_report(targets)
 
     location = LocationWeatherPoint(api_key=API_KEY, name='Los Angeles')
     weather_history = WeatherHistory(api_key=API_KEY, location=location)
