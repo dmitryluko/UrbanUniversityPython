@@ -8,7 +8,7 @@ from .location_weather import LocationWeatherPoint
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-API_URL_TEMPLATE = 'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={apikey}'
+API_URL_TEMPLATE = 'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&units=metric&appid={apikey}'
 CSV_INDEX = False
 PLOT_FIG_SIZE = (10, 6)
 
