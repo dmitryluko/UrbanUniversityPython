@@ -12,7 +12,6 @@ class LocationWeatherPoint:
         self.__raw_data: Dict[str, Any] = {}
         self.__lat: float = None
         self.__lon: float = None
-
         try:
             self.__lat, self.__lon = self._validate_and_get_location_details(name=name, latitude=latitude,
                                                                              longitude=longitude)
