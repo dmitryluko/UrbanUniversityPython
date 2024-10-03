@@ -1,5 +1,6 @@
-from typing import Dict, Any, Tuple
 import requests
+
+from typing import Dict, Any, Tuple
 
 
 class LocationWeatherPoint:
@@ -10,8 +11,8 @@ class LocationWeatherPoint:
         self.api_key = api_key
         self.name = name
         self.__raw_data: Dict[str, Any] = {}
-        self.__lat: float = None
-        self.__lon: float = None
+        self.__lat: float = float()
+        self.__lon: float = float()
         try:
             self.__lat, self.__lon = self._validate_and_get_location_details(name=name, latitude=latitude,
                                                                              longitude=longitude)
