@@ -9,7 +9,7 @@ import types
 def introspection_info(obj: object) -> None:
     # Check if obj is a module
     if isinstance(obj, types.ModuleType):
-        print("Object is a module:\n")
+        print('Object is a module:\n')
         print(f'Module Name: {obj.__name__}\n')
 
     # Print the type of the object
