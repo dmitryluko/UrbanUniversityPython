@@ -71,12 +71,12 @@ class TournamentTest(unittest.TestCase):
         # Introduce Constant
         LINE_SEPARATOR = '-' * 70
 
-        print(f"\n{LINE_SEPARATOR}\nSummary of All Results:\n{LINE_SEPARATOR}")
+        print(f'\n{LINE_SEPARATOR}\nSummary of All Results:\n{LINE_SEPARATOR}')
 
         for k, v in cls.all_results.items():
-            print(f"{k}:")
+            print(f'{k}:')
             for key, value in v.items():
-                print(f"    {key}: {value}")
+                print(f'    {key}: {value}')
 
         print(LINE_SEPARATOR)
 
