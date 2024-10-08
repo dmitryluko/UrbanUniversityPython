@@ -2,8 +2,7 @@
 
 import unittest
 
-from runner_test import RunnerTest
-from tests_12_2 import TournamentTest
+from tests_12_3 import RunnerTest, TournamentTest
 
 
 def load_tests(loader, tests, pattern):
