@@ -22,14 +22,7 @@ class RunnerTest(unittest.TestCase):
 
     def setUp(self):
         setup_logging()
-
-        logger.debug('Custom logger debug message')
-        logger.info('Custom logger info message')
-        logger.warning('Custom logger warning message')
-        logger.error('Custom logger error message')
-        logger.critical('Custom logger critical message')
-        logger.exception('Custom logger exception message')
-        logger.info('Starting new test')
+        logger.debug('Starting "setUp"')
         self.is_frozen = False
 
     @staticmethod
@@ -43,11 +36,11 @@ class RunnerTest(unittest.TestCase):
 
         return wrapper
 
-    # @_skip_if_frozen
-    # def test_walk_to_raise(self):
-    #     self.logger.info('Starting "test_walk_to_raise" with Exception : ')
-    #     with self.assertRaises(ValueError):
-    #         _ = Runner(name="John Doe", speed=-5)
+    @_skip_if_frozen
+    def test_walk_to_raise(self):
+        logger.info('Starting "test_walk_to_raise" with Exception : ')
+        with self.assertRaises(ValueError):
+            _ = Runner(name="John Doe", speed=-5)
 
     @_skip_if_frozen
     def test_run(self):
@@ -56,12 +49,12 @@ class RunnerTest(unittest.TestCase):
             runner.run()
         self.assertEqual(runner.distance, 100)
 
-    # @_skip_if_frozen
-    # def test_run_to_rise(self):
-    #     self.logger.info('Starting "test_run with Exception : "')
-    #
-    #     with self.assertRaises(ValueError):
-    #         _ = Runner(name="John Doe", speed=-5)
+    @_skip_if_frozen
+    def test_run_to_rise(self):
+        logger.info('Starting "test_run with Exception : "')
+
+        with self.assertRaises(ValueError):
+            _ = Runner(name="John Doe", speed=-5)
 
     @_skip_if_frozen
     def test_challenge(self):
@@ -77,8 +70,6 @@ class RunnerTest(unittest.TestCase):
             logger.exception("Exception in test_challenge")
             self.fail("Exception was raised: " + str(e))
 
-
-# To run the tests
 
 if __name__ == '__main__':
     unittest.main()
