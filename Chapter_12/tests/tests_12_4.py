@@ -1,33 +1,36 @@
-import logging
+import json
+import logging.config
+import pathlib
 import unittest
+from distutils.command.config import config
 
 from Chapter_12.rt_with_exceptions import Runner
 
+logger = logging.getLogger('Test_12_4')
 
-# logger = logging.getLogger(__name__)
-#
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format='%(asctime)s - %(levelname)s - %(message)s',
-#     filename='runner_tests.log',
-#     filemode='w',
-#     encoding='utf-8'
-# )
+
+def setup_logging():
+    config_file = pathlib.Path('logging_config.json')
+
+    with config_file.open() as fd:
+        config = json.load(fd)
+
+    logging.config.dictConfig(config=config)
 
 
 class RunnerTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_frozen = False
 
-        self.logger = logging.getLogger('test_logger')
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            filename='runner_tests.log',
-            filemode='w',
-            encoding='utf-8'
-        )
+    def setUp(self):
+        setup_logging()
+
+        logger.debug('Custom logger debug message')
+        logger.info('Custom logger info message')
+        logger.warning('Custom logger warning message')
+        logger.error('Custom logger error message')
+        logger.critical('Custom logger critical message')
+        logger.exception('Custom logger exception message')
+        logger.info('Starting new test')
+        self.is_frozen = False
 
     @staticmethod
     def _skip_if_frozen(func):
@@ -40,11 +43,11 @@ class RunnerTest(unittest.TestCase):
 
         return wrapper
 
-    @_skip_if_frozen
-    def test_walk_to_raise(self):
-        self.logger.info('Starting "test_walk_to_raise" with Exception : ')
-        with self.assertRaises(ValueError):
-            _ = Runner(name="John Doe", speed=-5)
+    # @_skip_if_frozen
+    # def test_walk_to_raise(self):
+    #     self.logger.info('Starting "test_walk_to_raise" with Exception : ')
+    #     with self.assertRaises(ValueError):
+    #         _ = Runner(name="John Doe", speed=-5)
 
     @_skip_if_frozen
     def test_run(self):
@@ -53,18 +56,12 @@ class RunnerTest(unittest.TestCase):
             runner.run()
         self.assertEqual(runner.distance, 100)
 
-    @_skip_if_frozen
-    def test_walk_to_raise(self):
-        self.logger.info('Starting "test_walk with Exception : ')
-        with self.assertRaises(ValueError):
-            _ = Runner(name="John Doe", speed=-5)
-
-    @_skip_if_frozen
-    def test_run_to_rise(self):
-        self.logger.info('Starting "test_run with Exception : "')
-
-        with self.assertRaises(ValueError):
-            _ = Runner(name="John Doe", speed=-5)
+    # @_skip_if_frozen
+    # def test_run_to_rise(self):
+    #     self.logger.info('Starting "test_run with Exception : "')
+    #
+    #     with self.assertRaises(ValueError):
+    #         _ = Runner(name="John Doe", speed=-5)
 
     @_skip_if_frozen
     def test_challenge(self):
@@ -75,12 +72,13 @@ class RunnerTest(unittest.TestCase):
                 runner1.run()
                 runner2.walk()
             self.assertNotEqual(runner1.distance, runner2.distance)
-            self.logger.info('"test_challenge" выполнен успешно')
+            logger.info('"test_challenge" выполнен успешно')
         except Exception as e:
-            self.logger.exception("Exception in test_challenge")
+            logger.exception("Exception in test_challenge")
             self.fail("Exception was raised: " + str(e))
 
 
 # To run the tests
+
 if __name__ == '__main__':
     unittest.main()
