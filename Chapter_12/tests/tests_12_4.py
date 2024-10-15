@@ -39,8 +39,13 @@ class RunnerTest(unittest.TestCase):
     @_skip_if_frozen
     def test_walk_to_raise(self):
         logger.info('Starting "test_walk_to_raise" with Exception : ')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             _ = Runner(name="John Doe", speed=-5)
+
+        logger.info(f'Test to wrong args for walk() produces : {cm.exception}')
+
+        self.assertTrue(isinstance(cm.exception, ValueError))
+        self.assertEqual(cm.exception.args[0], 'Скорость не может быть отрицательной, сейчас -5')
 
     @_skip_if_frozen
     def test_run(self):
