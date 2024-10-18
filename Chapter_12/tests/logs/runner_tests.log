@@ -1,0 +1,15 @@
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUpClass - ######################################################################
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUpClass - Starting new TestCase: RunnerTest
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUpClass - ######################################################################
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUpClass - 
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUp - --------------------------------------------------
+2024-10-18 12:58:14 - Test_12_4 - INFO - test_challenge - "test_challenge" выполнен успешно
+2024-10-18 12:58:14 - Test_12_4 - INFO - test_challenge - test_challenge() : PASSED
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUp - --------------------------------------------------
+2024-10-18 12:58:14 - Test_12_4 - INFO - test_run - test_run(): PASSED
+2024-10-18 12:58:14 - Test_12_4 - INFO - setUp - --------------------------------------------------
+2024-10-18 12:58:15 - Test_12_4 - INFO - test_runner_raises_type_error - Invalid args type for Runner() generates: Имя может быть только строкой, передано int
+2024-10-18 12:58:15 - Test_12_4 - INFO - test_runner_raises_type_error - test_runner_raises_type_error() : PASSED
+2024-10-18 12:58:15 - Test_12_4 - INFO - setUp - --------------------------------------------------
+2024-10-18 12:58:15 - Test_12_4 - INFO - test_runner_raises_value_error - Invalid args for Runner() generates: Скорость не может быть отрицательной, сейчас -5
+2024-10-18 12:58:15 - Test_12_4 - INFO - test_runner_raises_value_error - test_runner_raises_value_error() : PASSED
